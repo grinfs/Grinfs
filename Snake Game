@@ -1,0 +1,597 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <windows.h>
+#include <conio.h>
+#include <time.h>
+#include <iostream>
+#include <thread>
+#include <string>
+#include <iostream>
+#include <ctype.h>
+#include<dos.h>
+
+using namespace std;
+
+//Bien toan cuc
+#define MAX_SIZE_SNAKE 50
+#define MAX_SIZE_FOOD 4
+#define MAX_SPEED 3
+#define WidthMenu 68
+#define HeightMenu 28
+
+#pragma warning(disable:4996)
+
+
+POINT snake[50]; //Snake
+POINT food[4]; // Thuc an
+int CHAR_LOCK;//Bien xac dinh huong di khong di chuyen (tai mot thoi diem co mot huong ran khong the di chuyen)
+int MOVING;//Bien xac dinh huong di cua Snake (tai mot thoi diem co ba huong Snake co the di chuyen)
+int SPEED;// toc do cua ran
+int HEIGH_CONSOLE, WIDTH_CONSOLE;// do rong va do cao cua man hinh console
+int FOOD_INDEX; //chi so food hien hanh dang co tren man hinh
+int SIZE_SNAKE; // kich thuoc cua Snake
+int STATE; //Trang thai cua Snake
+int score; //Diem 
+int checkload;
+void resizeConsole(int, int);
+void loadgame();
+char namein[50];
+
+//Ham an con tro.
+void ancontro()
+{
+	HANDLE hOut;
+	CONSOLE_CURSOR_INFO ConCurInf;
+	hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+	ConCurInf.dwSize = 10;
+	ConCurInf.bVisible = FALSE;
+	SetConsoleCursorInfo(hOut, &ConCurInf);
+}
+void hiencontro()
+{
+	HANDLE hOut;
+	CONSOLE_CURSOR_INFO ConCurInf;
+	hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+	ConCurInf.dwSize = 10;
+	ConCurInf.bVisible = TRUE;
+	SetConsoleCursorInfo(hOut, &ConCurInf);
+} 
+//Ham co dinh man hinh
+void FixConsoleWindow() {
+	HWND consoleWindow = GetConsoleWindow();
+	LONG style = GetWindowLong(consoleWindow, GWL_STYLE);
+	style = style & ~(WS_MAXIMIZEBOX) & ~(WS_THICKFRAME);
+	SetWindowLong(consoleWindow, GWL_STYLE, style);
+}
+
+//Ham di chuyen con tro
+void GotoXY(int x, int y) {
+	COORD coord;
+	coord.X = x;
+	coord.Y = y;
+	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
+}
+
+//Ham kiem tra hop le
+bool IsValid(int x, int y) {
+	for (int i = 0; i < SIZE_SNAKE; i++) {
+		if (snake[i].x == x && snake[i].y == y) {
+			return false;
+			return true;
+		}
+	}
+}
+
+//Ham tao food
+void GenerateFood() {
+	int x, y;
+	srand(time(NULL));
+	for (int i = 0; i < MAX_SIZE_FOOD; i++) {
+		do {
+			x = rand() % (WIDTH_CONSOLE - 1) + 1;
+			y = rand() % (HEIGH_CONSOLE - 1) + 1;
+		} while (IsValid(x, y) == false);
+		food[i] = { x,y };
+	}
+}
+
+//Ham tai tao du lieu
+void ResetData() {
+	//Khoi tao du lieu toan cuc
+	CHAR_LOCK = 'A', MOVING = 'D', SPEED = 1; FOOD_INDEX = 0, WIDTH_CONSOLE = 70,
+		HEIGH_CONSOLE = 20, SIZE_SNAKE = 6;
+	//khoi tao du lieu man hinh cho Snake
+	snake[0] = { 10, 5 }; snake[1] = { 11, 5 };
+	snake[2] = { 12, 5 }; snake[3] = { 13, 5 };
+	snake[4] = { 14, 5 }; snake[5] = { 15, 5 };
+	GenerateFood(); 
+//tao mang thuc an
+}
+
+//Ham ve bang
+void DrawBoard(int x, int y, int width, int height, int curPosX = 0, int curPosY = 0) {
+	char dmap = 219;
+	resizeConsole(700, 500);
+	GotoXY(x, y); cout << dmap;
+	for (int i = 1; i < width; i++)cout << dmap;
+	cout << dmap;
+	GotoXY(x, height + y); cout << dmap;
+	for (int i = 1; i < width; i++)cout << dmap;
+	cout << dmap;
+	for (int i = y + 1; i < height + y; i++) {
+		GotoXY(x, i); cout << dmap;
+		GotoXY(x + width, i); cout << dmap;
+	}
+	GotoXY(curPosX, curPosY);
+}
+
+//Ham in chuc nang trong game
+void TextColor(WORD color)
+{
+	HANDLE hConsoleOutput;
+	hConsoleOutput = GetStdHandle(STD_OUTPUT_HANDLE);
+
+	CONSOLE_SCREEN_BUFFER_INFO screen_buffer_info;
+	GetConsoleScreenBufferInfo(hConsoleOutput, &screen_buffer_info);
+
+	WORD wAttributes = screen_buffer_info.wAttributes;
+	color &= 0x000f;
+	wAttributes &= 0xfff0;
+	wAttributes |= color;
+
+	SetConsoleTextAttribute(hConsoleOutput, wAttributes);
+}
+void ColorText(string Text, int Color)
+{
+	TextColor(Color);
+	cout << Text;
+	TextColor(7);
+}
+void inGame()
+{
+	GotoXY(2, HEIGH_CONSOLE + 3);   cout << "Score: " << score;
+	GotoXY(2, HEIGH_CONSOLE + 4);   ColorText("Dung phim : W(len), S(xuong), A(Trai), D(phai) de di chuyen", 10);
+	GotoXY(2, HEIGH_CONSOLE + 5);   ColorText("P: Tam dung, ", 10);
+	GotoXY(2, HEIGH_CONSOLE + 6);   ColorText("ESC: exit game.", 10);
+}
+
+//Ham bat dau game
+void StartGame() {
+	score = 0;
+	system("cls");
+	ResetData();// khoi tao du lieu cho game
+	DrawBoard(0, 0, WIDTH_CONSOLE, HEIGH_CONSOLE); // V? màn hình game
+	inGame();
+	STATE = 1;//B?t ??u cho Thread ch?y
+}
+
+//Ham thoat game
+void ExitGame(HANDLE t) {
+	system("cls");
+	TerminateThread(t, 0);
+}
+
+//Ham dung game
+void PauseGame(HANDLE t) {
+	SuspendThread(t);
+}
+
+//Ham cap nhat du lieu toan cuc
+void Eat() {
+	Beep(1000, 50); // 523 hertz (C5) for 500 milliseconds     
+
+	snake[SIZE_SNAKE] = food[FOOD_INDEX];
+	score++;
+	if (FOOD_INDEX == MAX_SIZE_FOOD - 1) {
+		FOOD_INDEX = 0;
+		if (SPEED == MAX_SPEED)
+		{
+			SPEED = 1;
+			SIZE_SNAKE = 6;
+		}
+		else {
+			SPEED++;
+			SIZE_SNAKE++;
+		}
+		GenerateFood();
+	}
+	else {
+		FOOD_INDEX++;
+		SIZE_SNAKE++;
+	}
+}
+
+//Ham xu ly khi chet
+void ProcessDead() {
+	Beep(500, 100);
+	Beep(550, 100);
+	Beep(600, 100);
+	Beep(500, 100);
+	STATE = 0;
+	GotoXY(0, HEIGH_CONSOLE + 2);
+	printf("Dead, Press any key to continue!");
+}
+
+//Ham ve ran va thuc an
+void DrawSnakeAndFood(const char* strSnake, const char* strFood, int snakesize) {
+	GotoXY(food[FOOD_INDEX].x, food[FOOD_INDEX].y);
+	cout << strFood;
+	int point = 0;
+	for (int i = 0; i < snakesize; i++) {
+		GotoXY(snake[i].x, snake[i].y);
+		cout << strSnake[point];
+		if (point == 7) {
+			point = 0;
+		}
+		else point++;
+	}
+}
+
+//Ham di chuyen
+void CheckBit() {
+	for (int i = 0; i < SIZE_SNAKE - 1; i++) {
+		if (snake[SIZE_SNAKE - 1].x == snake[i].x  && snake[SIZE_SNAKE - 1].y == snake[i].y)
+			ProcessDead();
+	}
+}
+void MoveRight() {
+	if (snake[SIZE_SNAKE - 1].x + 1 >= WIDTH_CONSOLE) {
+		ProcessDead();
+	}
+	else {
+		if (snake[SIZE_SNAKE - 1].x + 1 == food[FOOD_INDEX].x && snake[SIZE_SNAKE - 1].y == food[FOOD_INDEX].y) {
+			Eat();
+		}
+		for (int i = 0; i < SIZE_SNAKE - 1; i++) {
+			snake[i].x = snake[i + 1].x;
+			snake[i].y = snake[i + 1].y;
+		}
+		snake[SIZE_SNAKE - 1].x++;
+	}
+	CheckBit();
+	GotoXY(2, HEIGH_CONSOLE + 3);   cout << "Score: " << score;
+}
+void MoveLeft() {
+	if (snake[SIZE_SNAKE - 1].x - 1 <= 0) {
+		ProcessDead();
+	}
+	else {
+		if (snake[SIZE_SNAKE - 1].x - 1 == food[FOOD_INDEX].x && snake[SIZE_SNAKE - 1].y == food[FOOD_INDEX].y) {
+			Eat();
+		}
+		for (int i = 0; i < SIZE_SNAKE - 1; i++) {
+			snake[i].x = snake[i + 1].x;
+			snake[i].y = snake[i + 1].y;
+		}
+		snake[SIZE_SNAKE - 1].x--;
+	}
+	CheckBit();
+	GotoXY(2, HEIGH_CONSOLE + 3);   cout << "Score: " << score;
+}
+void MoveDown() {
+	if (snake[SIZE_SNAKE - 1].y + 1 >= HEIGH_CONSOLE) {
+		ProcessDead();
+	}
+	else {
+		if (snake[SIZE_SNAKE - 1].x == food[FOOD_INDEX].x && snake[SIZE_SNAKE - 1].y + 1 == food[FOOD_INDEX].y) {
+			Eat();
+		}
+		for (int i = 0; i < SIZE_SNAKE - 1; i++) {
+			snake[i].x = snake[i + 1].x;
+			snake[i].y = snake[i + 1].y;
+		}
+		snake[SIZE_SNAKE - 1].y++;
+	}
+	CheckBit();
+	GotoXY(2, HEIGH_CONSOLE + 3);   cout << "Score: " << score;
+}
+void MoveUp() {
+	if (snake[SIZE_SNAKE - 1].y - 1 <= 0) {
+		ProcessDead();
+	}
+	else {
+		if (snake[SIZE_SNAKE - 1].x == food[FOOD_INDEX].x && snake[SIZE_SNAKE - 1].y - 1 == food[FOOD_INDEX].y) {
+			Eat();
+		}
+		for (int i = 0; i < SIZE_SNAKE - 1; i++) {
+			snake[i].x = snake[i + 1].x;
+			snake[i].y = snake[i + 1].y;
+		}
+		snake[SIZE_SNAKE - 1].y--;
+	}
+	CheckBit();
+	GotoXY(2, HEIGH_CONSOLE + 3);   cout << "Score: " << score;
+}
+
+//ham save
+int Save(const char* link)
+{
+	FILE* file = fopen(link, "w+b");
+	if (file != NULL)
+	{
+		fprintf(file, "%d %d %d %d %d %d %d ", score, SPEED, MOVING, SIZE_SNAKE, food[FOOD_INDEX].x, food[FOOD_INDEX].y, CHAR_LOCK);
+		for (int i = 0; i < SIZE_SNAKE; i++)
+		{
+			fprintf(file, "%d %d ", snake[i].x, snake[i].y);
+		}
+		fclose(file);
+		return 1;
+	}
+	return 0;
+}
+//ham load
+int Load(char* link)
+{
+	int i, ii;
+	FILE* file = fopen(link, "r+b");
+	if (file == NULL) { fclose(file); return 0; }//khong luu dc.
+	else
+	{
+		fscanf(file, "%d%d%d%d%d%d%d", &score, &SPEED, &MOVING, &SIZE_SNAKE, &food[FOOD_INDEX].x, &food[FOOD_INDEX].y, &CHAR_LOCK);
+		for (i = 0; i < SIZE_SNAKE; i++)
+		{
+			fscanf(file, "%d%d", &snake[i].x, &snake[i].y);
+		}
+		fclose(file);
+		return 1;
+	}
+}
+
+//Ham thread
+void ThreadFunc() {
+	while (1) {
+		if (STATE == 1) {//N?u v?n còn snake v?n còn s?ng
+			DrawSnakeAndFood("        ", " ", SIZE_SNAKE);
+			switch (MOVING) {
+			case 'A':
+				MoveLeft();
+				break;
+			case 'D':
+				MoveRight();
+				break;
+			case 'W':
+				MoveUp();
+				break;
+			case 'S':
+				MoveDown();
+				break;
+			}
+			DrawSnakeAndFood("18600140", "*", SIZE_SNAKE);
+			Sleep(200 / SPEED);//Hàm ng? theo t?c ?? SPEEED
+		}
+	}
+}
+
+//Hàm Menu
+//chinh sua size man hinh
+void resizeConsole(int width, int height)
+{
+	HWND console = GetConsoleWindow();
+	RECT r;
+	GetWindowRect(console, &r);
+	MoveWindow(console, r.left, r.top, width, height, TRUE);
+} 
+//ham ve len man hinh
+void DrawingText(char Text, int x, int y)
+{
+	if (Text == 65 || Text == 97)
+	{
+		GotoXY(x, y);     cout << "   00  ";     Sleep(40);
+		GotoXY(x, y + 1); cout << " 00  00";     Sleep(40);
+		GotoXY(x, y + 2); cout << " 00  00";     Sleep(40);
+		GotoXY(x, y + 3); cout << " 000000";     Sleep(40);
+		GotoXY(x, y + 4); cout << " 00  00";     Sleep(40);
+	}
+
+	else if (Text == 69 || Text == 101)
+	{
+		GotoXY(x, y);     cout << " 000000";     Sleep(40);
+		GotoXY(x, y + 1); cout << " 00    ";     Sleep(40);
+		GotoXY(x, y + 2); cout << " 000000";     Sleep(40);
+		GotoXY(x, y + 3); cout << " 00    ";     Sleep(40);
+		GotoXY(x, y + 4); cout << " 000000";     Sleep(40);
+	}
+
+	else if (Text == 75 || Text == 107)
+	{
+		GotoXY(x, y);     cout << "00    00";   Sleep(40);
+		GotoXY(x, y + 1); cout << "00   00 ";   Sleep(40);
+		GotoXY(x, y + 2); cout << "00 0 0  ";   Sleep(40);
+		GotoXY(x, y + 3); cout << "00  00  ";   Sleep(40);
+		GotoXY(x, y + 4); cout << "00    00";   Sleep(40);
+	}
+
+	else if (Text == 78 || Text == 110)
+	{
+		GotoXY(x, y);     cout << "00     00";  Sleep(40);
+		GotoXY(x, y + 1); cout << "00 0   00";  Sleep(40);
+		GotoXY(x, y + 2); cout << "00  0  00";  Sleep(40);
+		GotoXY(x, y + 3); cout << "00   0 00";  Sleep(40);
+		GotoXY(x, y + 4); cout << "00     00";  Sleep(40);
+	}
+
+	else if (Text == 83 || Text == 115)
+	{
+		GotoXY(x, y);     cout << " 000000";     Sleep(40);
+		GotoXY(x, y + 1); cout << " 00    ";     Sleep(40);
+		GotoXY(x, y + 2); cout << " 000000";     Sleep(40);
+		GotoXY(x, y + 3); cout << "     00.";     Sleep(40);
+		GotoXY(x, y + 4); cout << " 000000";     Sleep(40);
+	}
+
+}
+//menu dau game
+void loadgame() {
+	GotoXY(35, 12); ColorText("Nhap ten: ",196); 
+	fflush(stdin); gets_s(namein);
+	if (Load(namein) == 1) {
+		GotoXY(35, 12); ColorText("Load thanh cong!", 9);
+		Sleep(500);
+	}
+	GenerateFood();
+}
+void savegame(HANDLE _handle_t1) {
+	char name[50];
+	PauseGame(_handle_t1);
+	GotoXY(73, 5); ColorText("Nhap ten: ", 10);
+	fflush(stdin); gets_s(name);
+	if (Save(name) == 1) {
+		GotoXY(74, 7); ColorText("Luu thanh cong!", 9);
+	}
+	else
+	{
+		GotoXY(79, 11); ColorText("Luu that bai!", 9);
+	}
+	Sleep(500);
+	GotoXY(73, 5); ColorText("Nhap ten:      ", 16);
+	GotoXY(74, 7); ColorText("Luu thanh cong!", 16);
+	ResumeThread(_handle_t1);
+}
+void menuFirst()
+{
+	int Check = 1;
+	do {
+		system("cls");
+		resizeConsole(530, 510);
+		char dmap = 219;
+		for (int i = 0; i <= WidthMenu; i++)
+		{
+			GotoXY(i, 0); cout << dmap;
+			GotoXY(i, HeightMenu); cout << dmap;
+		}
+		for (int i = 0; i <= HeightMenu; i++)
+		{
+			GotoXY(0, i); cout << dmap;
+			GotoXY(WidthMenu, i); cout << dmap;
+		}
+
+		TextColor(10);
+		DrawingText('S', 10, 2);
+		DrawingText('N', 19, 2);
+		DrawingText('A', 29, 2);
+		DrawingText('K', 39, 2);
+		DrawingText('E', 48, 2);
+
+		GotoXY(29, 10); cout << "1: PLAY";
+		GotoXY(26, 12); cout << "2: LOAD";
+		GotoXY(23, 14); cout << "3: EXIT";
+		GotoXY(40, 20); cout << "SELECT: ";
+
+		int Select;
+		do {
+
+			if (_kbhit())
+			{
+				Select = _getch();
+				if (Select == 49)
+				{
+					Check = Select;
+					break;
+				}
+				else if (Select == 50)
+				{
+					checkload = 1;
+					loadgame();
+					Check = 49;
+					break;
+				}
+				else if (Select == 51)
+				{
+					exit(0);
+				}
+			}
+		} while (true);
+
+	} while (Check != 49);
+}
+//menu cuoi game
+bool menuExit() {
+	system("cls");
+	resizeConsole(600, 500);
+	char dmap = 219;
+	for (int i = 0; i <= WidthMenu; i++)
+	{
+		GotoXY(i, 0); cout << dmap;
+		GotoXY(i, HeightMenu); cout << dmap;
+	}
+	for (int i = 0; i <= HeightMenu; i++)
+	{
+		GotoXY(0, i); cout << dmap;
+		GotoXY(WidthMenu, i); cout << dmap;
+	}
+	GotoXY(24, 7); cout << "Gameover!!";
+	GotoXY(25, 8); cout << "Do you want to continute?";
+	GotoXY(29, 10); cout << "Y: yes";
+	GotoXY(26, 12); cout << "N: no";
+	GotoXY(40, 20); cout << "SELECT: ";
+
+	char Select;
+	do {
+
+		while (_kbhit())
+		{
+			Select = toupper(_getch());
+			if (Select == 'Y')
+			{
+				return true;
+			}
+			else if (Select == 'N')
+			{
+				system("cls");
+				GotoXY(6, 10);   ColorText("Thank for playing!", 12);
+				Sleep(500);
+				exit(0);
+			}
+		}
+	} while (true);
+}
+//menu save load
+
+//Ham main
+void main() {
+	checkload = 0;
+	ancontro();
+	FixConsoleWindow();
+	menuFirst();
+	int temp;
+	bool kt = false;
+	StartGame();
+	if (checkload == 1) { int i = Load(namein); }
+	thread t1(ThreadFunc); //Tao thread cho snake
+	HANDLE handle_t1 = t1.native_handle(); //Lay handle cua thread
+	while (1) {
+		temp = toupper(_getch());
+		if (STATE == 1) {
+			if (temp == 'P') {
+				PauseGame(handle_t1);
+				GotoXY(30, 10);   ColorText("Tam dung!", 12);
+				GotoXY(28, 11);   ColorText("Nhan phim bat ky de tiep tuc", 12);
+				_getch();
+				GotoXY(30, 10);   ColorText("         ", 11);
+				GotoXY(28, 11);   ColorText("                            ", 12);
+			}
+			else if (temp == 27) {
+				exit(0);
+			}
+			else if (temp == 'L') {
+				savegame(handle_t1);
+			}
+			else {
+				ResumeThread(handle_t1);
+
+				if ((temp != CHAR_LOCK) && (temp == 'D' || temp == 'A' || temp == 'W' || temp == 'S')) {
+					if (temp == 'D') CHAR_LOCK = 'A';
+					else if (temp == 'W') CHAR_LOCK = 'S';
+					else if (temp == 'S') CHAR_LOCK = 'W';
+					else CHAR_LOCK = 'D';
+					MOVING = temp;
+				}
+			}
+		}
+		else kt = menuExit();
+		if (kt) {
+			StartGame();
+			kt = false;
+		}
+	}
+}

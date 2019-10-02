@@ -1,0 +1,35 @@
+#include <iostream>
+
+using namespace std;
+
+const int Max = 32;
+
+void Input(int&);
+void Output(int, int[]);
+void DecToBin(int, int[]);
+
+void main(){
+	int _decimal;
+	int _binary[Max];
+	Input(_decimal);
+	DecToBin(_decimal, _binary);
+	Output(_decimal,_binary);
+}
+
+void Input(int& x){
+	cout << "Nhap so nguyen can chuyen: ";
+	cin >> x;
+}
+
+void Output(int x, int _binary[]){
+	cout << x << " -> ";
+	for (int i = 0; i < Max; i++){
+		cout << _binary[i];
+	}
+}
+
+void DecToBin(int x, int _binary[]){
+	for (int i = 0; i < Max; i++){
+		_binary[i] = (x >> Max -1 - i) & 1;
+	}
+}

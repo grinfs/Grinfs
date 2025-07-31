@@ -311,19 +311,36 @@
         
         function setupOnlineStatus() {
             var userStatusRef = db.collection('user_presence').doc(currentUser.uid);
+            var partnerStatusRef = db.collection('user_presence').doc(partnerId);
+
+            // Cập nhật trạng thái của bạn
             userStatusRef.set({
-                status: 'online',
                 last_seen: firebase.firestore.FieldValue.serverTimestamp()
             });
 
-            var partnerStatusRef = db.collection('user_presence').doc(partnerId);
+            // Lắng nghe trạng thái của người còn lại
             partnerStatusRef.onSnapshot(function(doc) {
-                if (doc.exists && doc.data().status === 'online') {
-                    onlineStatusDiv.innerHTML = '<span class="online-dot"></span> Đang hoạt động';
+                if (doc.exists) {
+                    var lastSeen = doc.data().last_seen.toDate();
+                    var now = new Date();
+                    var diffMinutes = (now - lastSeen) / 60000;
+                    
+                    if (diffMinutes < 5) { // Coi là online nếu hoạt động trong 5 phút gần nhất
+                        onlineStatusDiv.innerHTML = '<span class="online-dot"></span> Đang hoạt động';
+                    } else {
+                        onlineStatusDiv.innerHTML = '<span class="offline-dot"></span> Ngoại tuyến';
+                    }
                 } else {
                     onlineStatusDiv.innerHTML = '<span class="offline-dot"></span> Ngoại tuyến';
                 }
             });
+
+            // Cập nhật trạng thái của bạn mỗi 30 giây để duy trì trạng thái online
+            setInterval(() => {
+                userStatusRef.update({
+                    last_seen: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            }, 30000); // 30000ms = 30 giây
         }
     </script>
 </body>

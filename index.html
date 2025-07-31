@@ -316,20 +316,6 @@
         }
         
         function setupOnlineStatus() {
-    const userStatusDatabaseRef = dbRealtime.ref('/status/' + currentUser.uid);
-    const partnerStatusDatabaseRef = dbRealtime.ref('/status/' + partnerId);
-
-    const isOnlineForDatabase = {
-        online: true,
-        last_changed: firebase.database.ServerValue.TIMESTAMP
-    };
-
-    const isOfflineForDatabase = {
-        online: false,
-        last_changed: firebase.database.ServerValue.TIMESTAMP
-    };
-
-    function setupOnlineStatus() {
     const userStatusRef = dbRealtime.ref('status/' + currentUser.uid);
     const partnerStatusRef = dbRealtime.ref('status/' + partnerId);
 
@@ -353,6 +339,7 @@
         }
     });
 }
+
     </script>
 </body>
 </html>

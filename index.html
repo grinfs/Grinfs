@@ -229,7 +229,7 @@
         var onlineStatusDiv = document.getElementById('online-status');
 
         var currentUser = null;
-        var user1Id = "AQQ9TjfkjZacKeBT8NdwlGUio2L2"; // UID của tuanh@gmail.com
+        var user1Id = "AQG9TjfkjZacKeBT8NdwlGUio2L2"; // UID của tuanh@gmail.com
         var user2Id = "sbx22l48QxSXrwd996hcWUashMw1"; // UID của grinfs@gmail.com
         var partnerId = null;
 
@@ -316,30 +316,28 @@
         }
         
         function setupOnlineStatus() {
-    const userStatusRef = dbRealtime.ref('status/' + currentUser.uid);
-    const partnerStatusRef = dbRealtime.ref('status/' + partnerId);
+            var userStatusRef = dbRealtime.ref('status/' + currentUser.uid);
+            var partnerStatusRef = dbRealtime.ref('status/' + partnerId);
 
-    // Khi mở web
-    userStatusRef.set({ online: true });
+            userStatusRef.set({ online: true });
+            userStatusRef.onDisconnect().set({ online: false });
 
-    // Khi đóng tab hoặc reload
-    window.addEventListener('beforeunload', function () {
-        userStatusRef.set({ online: false });
-    });
+            partnerStatusRef.on('value', (snapshot) => {
+                const partnerStatus = snapshot.val();
+                
+                // Log để kiểm tra chính xác dữ liệu từ server
+                console.log("Dữ liệu trạng thái nhận được:", partnerStatus);
+                console.log("Kiểu dữ liệu:", typeof partnerStatus);
 
-    // Theo dõi trạng thái của partner
-    partnerStatusRef.on('value', function(snapshot) {
-        const status = snapshot.val();
-        console.log("👀 Trạng thái partner nhận được:", status);
-
-        if (status && status.online) {
-            onlineStatusDiv.innerHTML = '<span class="online-dot"></span> Đang hoạt động';
-        } else {
-            onlineStatusDiv.innerHTML = '<span class="offline-dot"></span> Ngoại tuyến';
+                if (partnerStatus && partnerStatus.online) {
+                    onlineStatusDiv.innerHTML = '<span class="online-dot"></span> Đang hoạt động';
+                } else {
+                    onlineStatusDiv.innerHTML = '<span class="offline-dot"></span> Ngoại tuyến';
+                }
+            }, (error) => {
+                console.error("Lỗi khi lắng nghe trạng thái online:", error);
+            });
         }
-    });
-}
-
     </script>
 </body>
 </html>

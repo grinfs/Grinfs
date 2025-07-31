@@ -316,28 +316,48 @@
         }
         
         function setupOnlineStatus() {
-            var userStatusRef = dbRealtime.ref('status/' + currentUser.uid);
-            var partnerStatusRef = dbRealtime.ref('status/' + partnerId);
+    const userStatusDatabaseRef = dbRealtime.ref('/status/' + currentUser.uid);
+    const partnerStatusDatabaseRef = dbRealtime.ref('/status/' + partnerId);
 
-            userStatusRef.set({ online: true });
-            userStatusRef.onDisconnect().set({ online: false });
+    const isOnlineForDatabase = {
+        online: true,
+        last_changed: firebase.database.ServerValue.TIMESTAMP
+    };
 
-            partnerStatusRef.on('value', (snapshot) => {
-                const partnerStatus = snapshot.val();
-                
-                // Log để kiểm tra chính xác dữ liệu từ server
-                console.log("Dữ liệu trạng thái nhận được:", partnerStatus);
-                console.log("Kiểu dữ liệu:", typeof partnerStatus);
+    const isOfflineForDatabase = {
+        online: false,
+        last_changed: firebase.database.ServerValue.TIMESTAMP
+    };
 
-                if (partnerStatus && partnerStatus.online) {
-                    onlineStatusDiv.innerHTML = '<span class="online-dot"></span> Đang hoạt động';
-                } else {
-                    onlineStatusDiv.innerHTML = '<span class="offline-dot"></span> Ngoại tuyến';
-                }
-            }, (error) => {
-                console.error("Lỗi khi lắng nghe trạng thái online:", error);
-            });
+    dbRealtime.ref('.info/connected').on('value', function(snapshot) {
+        if (snapshot.val() === false) {
+            return;
         }
+
+        userStatusDatabaseRef
+            .onDisconnect()
+            .set(isOfflineForDatabase)
+            .then(function() {
+                userStatusDatabaseRef.set(isOnlineForDatabase);
+                console.log("✅ Đã set trạng thái online cho", currentUser.uid);
+            });
+    });
+
+    // LẮNG NGHE TRẠNG THÁI partnerId
+    partnerStatusDatabaseRef.on('value', function(snapshot) {
+        const status = snapshot.val();
+        console.log("👀 Trạng thái partner nhận được:", status);
+
+        if (status && status.online) {
+            onlineStatusDiv.innerHTML = '<span class="online-dot"></span> Đang hoạt động';
+        } else {
+            onlineStatusDiv.innerHTML = '<span class="offline-dot"></span> Ngoại tuyến';
+        }
+    }, function(error) {
+        console.error("❌ Lỗi khi theo dõi trạng thái partner:", error);
+    });
+}
+
     </script>
 </body>
 </html>

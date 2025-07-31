@@ -199,6 +199,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
 
     <script>
         var firebaseConfig = {
@@ -207,10 +208,12 @@
             projectId: "chat-e4c3b",
             storageBucket: "chat-e4c3b.firebasestorage.app",
             messagingSenderId: "569274547195",
-            appId: "1:569274547195:web:dd2b0629d31cc2f9f6695e"
+            appId: "1:569274547195:web:dd2b0629d31cc2f9f6695e",
+            databaseURL: "https://chat-e4c3b-default-rtdb.asia-southeast1.firebaseio.com"
         };
         firebase.initializeApp(firebaseConfig);
-        var db = firebase.firestore();
+        var dbFirestore = firebase.firestore();
+        var dbRealtime = firebase.database();
         var auth = firebase.auth();
 
         var loginContainer = document.getElementById('login-container');
@@ -261,7 +264,7 @@
             if (!currentUser) return;
             var messageText = messageInput.value.trim();
             if (messageText !== "") {
-                db.collection("messages").add({
+                dbFirestore.collection("messages").add({
                     text: messageText,
                     senderId: currentUser.uid,
                     timestamp: firebase.firestore.FieldValue.serverTimestamp()
@@ -280,7 +283,7 @@
 
         clearChatButton.addEventListener('click', function() {
             if (confirm("Bạn có chắc chắn muốn xóa toàn bộ tin nhắn không?")) {
-                db.collection("messages").get().then(function(querySnapshot) {
+                dbFirestore.collection("messages").get().then(function(querySnapshot) {
                     querySnapshot.forEach(function(doc) {
                         doc.ref.delete();
                     });
@@ -290,7 +293,7 @@
         });
 
         function loadMessages() {
-            db.collection("messages").orderBy("timestamp").onSnapshot(function(snapshot) {
+            dbFirestore.collection("messages").orderBy("timestamp").onSnapshot(function(snapshot) {
                 snapshot.docChanges().forEach(function(change) {
                     if (change.type === "added") {
                         var msg = change.doc.data();
@@ -310,36 +313,24 @@
         }
         
         function setupOnlineStatus() {
-            var userStatusRef = db.collection('user_presence').doc(currentUser.uid);
-            var partnerStatusRef = db.collection('user_presence').doc(partnerId);
+            var userStatusRef = dbRealtime.ref('status/' + currentUser.uid);
+            var partnerStatusRef = dbRealtime.ref('status/' + partnerId);
 
-            userStatusRef.set({
-                last_seen: firebase.firestore.FieldValue.serverTimestamp()
-            }, { merge: true });
+            // Ghi trạng thái online khi kết nối
+            userStatusRef.set({ online: true });
 
-            partnerStatusRef.onSnapshot(function(doc) {
-                if (doc.exists) {
-                    var lastSeen = doc.data().last_seen.toDate();
-                    var now = new Date();
-                    var diffSeconds = (now.getTime() - lastSeen.getTime()) / 1000;
-                    
-                    if (diffSeconds < 60) {
-                        onlineStatusDiv.innerHTML = '<span class="online-dot"></span> Đang hoạt động';
-                    } else {
-                        onlineStatusDiv.innerHTML = '<span class="offline-dot"></span> Ngoại tuyến';
-                    }
+            // Khi người dùng ngắt kết nối, tự động ghi trạng thái offline
+            userStatusRef.onDisconnect().set({ online: false });
+
+            // Lắng nghe sự thay đổi trạng thái của người còn lại
+            partnerStatusRef.on('value', (snapshot) => {
+                const partnerStatus = snapshot.val();
+                if (partnerStatus && partnerStatus.online) {
+                    onlineStatusDiv.innerHTML = '<span class="online-dot"></span> Đang hoạt động';
                 } else {
                     onlineStatusDiv.innerHTML = '<span class="offline-dot"></span> Ngoại tuyến';
                 }
             });
-
-            setInterval(() => {
-                userStatusRef.update({
-                    last_seen: firebase.firestore.FieldValue.serverTimestamp()
-                }).catch(function(error) {
-                    console.error("Lỗi cập nhật trạng thái online:", error);
-                });
-            }, 30000);
         }
     </script>
 </body>

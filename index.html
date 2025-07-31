@@ -1,12 +1,71 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Trang web riêng của tôi</title>
+    <title>Chat riêng tư</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; }
+        #chat-box { border: 1px solid #ccc; padding: 10px; height: 300px; overflow-y: scroll; margin-bottom: 10px; }
+        .message { margin-bottom: 5px; }
+        .you { text-align: right; color: blue; }
+        .me { text-align: left; color: green; }
+        input[type="text"] { width: 80%; padding: 8px; }
+        button { padding: 8px; }
+    </style>
 </head>
 <body>
 
-    <h1>Chào bạn</h1>
-    <p>Đây là nơi chúng ta có thể trò chuyện.</p>
+    <h1>Chat riêng tư</h1>
+    <div id="chat-box"></div>
+    <input type="text" id="message-input" placeholder="Nhập tin nhắn của bạn...">
+    <button id="send-button">Gửi</button>
 
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
+
+    <script>
+        // BƯỚC QUAN TRỌNG: Thay thế các thông tin dưới đây bằng thông tin dự án Firebase của bạn
+        var firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+        firebase.initializeApp(firebaseConfig);
+        var db = firebase.firestore();
+
+        var chatBox = document.getElementById('chat-box');
+        var messageInput = document.getElementById('message-input');
+        var sendButton = document.getElementById('send-button');
+
+        // Lắng nghe tin nhắn mới từ Firebase
+        db.collection("messages").orderBy("timestamp").onSnapshot(function(snapshot) {
+            snapshot.docChanges().forEach(function(change) {
+                if (change.type === "added") {
+                    var msg = change.doc.data();
+                    var messageElement = document.createElement('div');
+                    messageElement.classList.add('message');
+                    // Bạn có thể chỉnh sửa để phân biệt tin nhắn của ai
+                    // messageElement.classList.add(msg.sender === "me" ? "me" : "you");
+                    messageElement.textContent = msg.text;
+                    chatBox.appendChild(messageElement);
+                    chatBox.scrollTop = chatBox.scrollHeight;
+                }
+            });
+        });
+
+        // Gửi tin nhắn mới
+        sendButton.addEventListener('click', function() {
+            var messageText = messageInput.value.trim();
+            if (messageText !== "") {
+                db.collection("messages").add({
+                    text: messageText,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                messageInput.value = ""; // Xóa nội dung ô nhập
+            }
+        });
+    </script>
 </body>
 </html>

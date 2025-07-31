@@ -209,7 +209,7 @@
             storageBucket: "chat-e4c3b.firebasestorage.app",
             messagingSenderId: "569274547195",
             appId: "1:569274547195:web:dd2b0629d31cc2f9f6695e",
-            databaseURL: "https://chat-e4c3b-default-rtdb.asia-southeast1.firebasedatabase.app"
+            databaseURL: "https://chat-e4c3b-default-rtdb.asia-southeast1.firebaseio.com"
         };
         firebase.initializeApp(firebaseConfig);
         var dbFirestore = firebase.firestore();
@@ -250,6 +250,9 @@
                 chatContainer.style.display = 'flex';
                 
                 partnerId = (currentUser.uid === user1Id) ? user2Id : user1Id;
+                
+                console.log("Current User ID:", currentUser.uid);
+                console.log("Partner ID:", partnerId);
                 
                 loadMessages();
                 setupOnlineStatus();
@@ -316,15 +319,15 @@
             var userStatusRef = dbRealtime.ref('status/' + currentUser.uid);
             var partnerStatusRef = dbRealtime.ref('status/' + partnerId);
 
-            // Ghi trạng thái online khi kết nối
-            userStatusRef.set({ online: true });
+            console.log("Cố gắng kết nối tới Realtime Database với ID:", currentUser.uid);
+            console.log("Cố gắng lắng nghe trạng thái của đối phương với ID:", partnerId);
 
-            // Khi người dùng ngắt kết nối, tự động ghi trạng thái offline
+            userStatusRef.set({ online: true });
             userStatusRef.onDisconnect().set({ online: false });
 
-            // Lắng nghe sự thay đổi trạng thái của người còn lại
             partnerStatusRef.on('value', (snapshot) => {
                 const partnerStatus = snapshot.val();
+                console.log("Dữ liệu trạng thái nhận được:", partnerStatus);
                 if (partnerStatus && partnerStatus.online) {
                     onlineStatusDiv.innerHTML = '<span class="online-dot"></span> Đang hoạt động';
                 } else {

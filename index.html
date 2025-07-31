@@ -13,6 +13,46 @@
             height: 100vh;
         }
 
+        #login-container {
+            width: 100%;
+            max-width: 400px;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        #login-container h1 {
+            color: #007bff;
+        }
+
+        #login-form input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            box-sizing: border-box;
+            font-size: 1em;
+        }
+
+        #login-form button {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.2s;
+        }
+
+        #login-form button:hover {
+            background-color: #0056b3;
+        }
+
         #chat-container {
             width: 100%;
             max-width: 600px;
@@ -23,6 +63,7 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             border-radius: 8px;
             overflow: hidden;
+            display: none; /* Ẩn ban đầu */
         }
 
         #chat-header {
@@ -95,6 +136,14 @@
     </style>
 </head>
 <body>
+    <div id="login-container">
+        <h1>Đăng nhập</h1>
+        <form id="login-form">
+            <input type="email" id="email-input" placeholder="Email" required>
+            <input type="password" id="password-input" placeholder="Mật khẩu" required>
+            <button type="submit">Đăng nhập</button>
+        </form>
+    </div>
 
     <div id="chat-container">
         <div id="chat-header">Chat riêng tư</div>
@@ -107,6 +156,7 @@
 
     <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
 
     <script>
         var firebaseConfig = {
@@ -119,39 +169,78 @@
         };
         firebase.initializeApp(firebaseConfig);
         var db = firebase.firestore();
+        var auth = firebase.auth();
+
+        var loginContainer = document.getElementById('login-container');
+        var chatContainer = document.getElementById('chat-container');
+        var loginForm = document.getElementById('login-form');
+        var emailInput = document.getElementById('email-input');
+        var passwordInput = document.getElementById('password-input');
 
         var chatBox = document.getElementById('chat-box');
         var messageInput = document.getElementById('message-input');
         var sendButton = document.getElementById('send-button');
 
-        // Lắng nghe tin nhắn mới từ Firebase
-        db.collection("messages").orderBy("timestamp").onSnapshot(function(snapshot) {
-            snapshot.docChanges().forEach(function(change) {
-                if (change.type === "added") {
-                    var msg = change.doc.data();
-                    var messageElement = document.createElement('div');
-                    messageElement.classList.add('message-bubble');
-                    // Gán class để phân biệt tin nhắn gửi đi và nhận về
-                    messageElement.classList.add(msg.sender === "me" ? "sent" : "received");
-                    messageElement.textContent = msg.text;
-                    chatBox.appendChild(messageElement);
-                    chatBox.scrollTop = chatBox.scrollHeight;
-                }
-            });
+        var currentUser = null;
+
+        // Xử lý đăng nhập
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            var email = emailInput.value;
+            var password = passwordInput.value;
+            auth.signInWithEmailAndPassword(email, password)
+                .catch(function(error) {
+                    alert(error.message);
+                });
+        });
+
+        // Kiểm tra trạng thái đăng nhập
+        auth.onAuthStateChanged(function(user) {
+            if (user) {
+                currentUser = user;
+                loginContainer.style.display = 'none';
+                chatContainer.style.display = 'flex';
+                loadMessages();
+            } else {
+                currentUser = null;
+                loginContainer.style.display = 'flex';
+                chatContainer.style.display = 'none';
+            }
         });
 
         // Gửi tin nhắn mới
         sendButton.addEventListener('click', function() {
+            if (!currentUser) return;
             var messageText = messageInput.value.trim();
             if (messageText !== "") {
                 db.collection("messages").add({
                     text: messageText,
-                    sender: "me", // Đánh dấu tin nhắn là của bạn
+                    senderId: currentUser.uid,
                     timestamp: firebase.firestore.FieldValue.serverTimestamp()
                 });
                 messageInput.value = "";
             }
         });
+
+        function loadMessages() {
+            db.collection("messages").orderBy("timestamp").onSnapshot(function(snapshot) {
+                snapshot.docChanges().forEach(function(change) {
+                    if (change.type === "added") {
+                        var msg = change.doc.data();
+                        var messageElement = document.createElement('div');
+                        messageElement.classList.add('message-bubble');
+                        if (msg.senderId === currentUser.uid) {
+                            messageElement.classList.add('sent');
+                        } else {
+                            messageElement.classList.add('received');
+                        }
+                        messageElement.textContent = msg.text;
+                        chatBox.appendChild(messageElement);
+                        chatBox.scrollTop = chatBox.scrollHeight;
+                    }
+                });
+            });
+        }
     </script>
 </body>
 </html>

@@ -63,7 +63,7 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             border-radius: 8px;
             overflow: hidden;
-            display: none; /* Ẩn ban đầu */
+            display: none;
         }
 
         #chat-header {
@@ -209,7 +209,7 @@
         });
 
         // Gửi tin nhắn mới
-        sendButton.addEventListener('click', function() {
+        function sendMessage() {
             if (!currentUser) return;
             var messageText = messageInput.value.trim();
             if (messageText !== "") {
@@ -219,6 +219,15 @@
                     timestamp: firebase.firestore.FieldValue.serverTimestamp()
                 });
                 messageInput.value = "";
+            }
+        }
+        
+        sendButton.addEventListener('click', sendMessage);
+
+        // Thêm tính năng bấm Enter để gửi
+        messageInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
             }
         });
 

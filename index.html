@@ -316,26 +316,25 @@
         }
         
         function setupOnlineStatus() {
-            var userStatusRef = dbRealtime.ref('status/' + currentUser.uid);
-            var partnerStatusRef = dbRealtime.ref('status/' + partnerId);
-
-            userStatusRef.set({ online: true });
-            userStatusRef.onDisconnect().set({ online: false });
-
-            partnerStatusRef.on('value', (snapshot) => {
-                const partnerStatus = snapshot.val();
-                
-                // Log để kiểm tra chính xác dữ liệu từ server
-                console.log("Dữ liệu trạng thái nhận được:", partnerStatus);
-                console.log("Kiểu dữ liệu:", typeof partnerStatus);
-
-                if (partnerStatus && partnerStatus.online) {
+            if (!currentUser || !partnerId) return;
+            var userStatusDatabaseRef = rtdb.ref('/status/' + currentUser.uid);
+            var partnerStatusDatabaseRef = rtdb.ref('/status/' + partnerId);
+            var isOfflineForDatabase = { state: 'offline', last_changed: firebase.database.ServerValue.TIMESTAMP };
+            var isOnlineForDatabase = { state: 'online', last_changed: firebase.database.ServerValue.TIMESTAMP };
+            
+            rtdb.ref('.info/connected').on('value', function(snapshot) {
+                if (snapshot.val() === false) return;
+                userStatusDatabaseRef.onDisconnect().set(isOfflineForDatabase).then(function() {
+                    userStatusDatabaseRef.set(isOnlineForDatabase);
+                });
+            });
+            
+            statusListener = partnerStatusDatabaseRef.on('value', function(snapshot) {
+                if (snapshot.exists() && snapshot.val().state === 'online') {
                     onlineStatusDiv.innerHTML = '<span class="online-dot"></span> Đang hoạt động';
                 } else {
                     onlineStatusDiv.innerHTML = '<span class="offline-dot"></span> Ngoại tuyến';
                 }
-            }, (error) => {
-                console.error("Lỗi khi lắng nghe trạng thái online:", error);
             });
         }
     </script>

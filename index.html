@@ -7,15 +7,15 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
         :root {
-            --sent-bg: linear-gradient(45deg, #6d83f5, #57a1f8);
-            --received-bg: #eef1f6;
-            --body-bg: #e5e9f2;
-            --text-dark: #333;
+            /* MÀU SẮC CHUẨN FACEBOOK MESSENGER */
+            --sent-bg: #0084ff;
+            --received-bg: #e4e6eb;
+            --body-bg: #fff; /* Nền trắng như Messenger */
+            --text-dark: #050505; /* Màu chữ chính */
             --text-light: #fff;
             --font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
-        /* --- CÀI ĐẶT CHUNG & GIAO DIỆN MỚI --- */
         body {
             font-family: var(--font-family);
             background-color: var(--body-bg);
@@ -27,6 +27,7 @@
         }
 
         #login-container {
+            /* ... Giữ nguyên giao diện đăng nhập ... */
             width: 100%;
             max-width: 400px;
             padding: 20px;
@@ -36,41 +37,11 @@
             text-align: center;
         }
 
-        #login-container h1 {
-            color: #5d78f6;
-            font-weight: 600;
-        }
-
-        #login-form input {
-            width: 100%;
-            padding: 12px 20px;
-            margin-bottom: 10px;
-            border: 1px solid #ddd;
-            border-radius: 25px;
-            box-sizing: border-box;
-            font-size: 1em;
-            font-family: var(--font-family);
-        }
-
-        #login-form button {
-            width: 100%;
-            padding: 12px;
-            background-image: var(--sent-bg);
-            color: white;
-            border: none;
-            border-radius: 25px;
-            cursor: pointer;
-            font-size: 1em;
-            font-weight: 500;
-            transition: transform 0.2s, box-shadow 0.2s;
-            font-family: var(--font-family);
-        }
-
-        #login-form button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(93, 120, 246, 0.4);
-        }
-
+        #login-container h1 { color: #0084ff; font-weight: 600; }
+        #login-form input { width: 100%; padding: 12px 20px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 25px; box-sizing: border-box; font-size: 1em; font-family: var(--font-family); }
+        #login-form button { width: 100%; padding: 12px; background-color: var(--sent-bg); color: white; border: none; border-radius: 25px; cursor: pointer; font-size: 1em; font-weight: 500; transition: background-color 0.2s; font-family: var(--font-family); }
+        #login-form button:hover { background-color: #0073e0; }
+        
         #chat-container {
             width: 100%;
             max-width: 650px;
@@ -78,16 +49,17 @@
             display: flex;
             flex-direction: column;
             background-color: #fff;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
             border-radius: 16px;
             overflow: hidden;
             display: none;
+            border: 1px solid #ddd; /* Thêm viền để rõ hơn */
         }
 
         #chat-header {
             background-color: #fff;
             color: var(--text-dark);
-            padding: 15px 20px;
+            padding: 10px 20px;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -96,40 +68,11 @@
             font-weight: 600;
         }
         
-        #clear-chat-button {
-            position: absolute;
-            right: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            color: #aaa;
-            cursor: pointer;
-            font-size: 0.9em;
-            font-weight: 500;
-            transition: color 0.2s;
-        }
-        #clear-chat-button:hover {
-            color: #f44336;
-        }
+        #clear-chat-button { position: absolute; right: 20px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #aaa; cursor: pointer; font-size: 0.9em; font-weight: 500; transition: color 0.2s; }
+        #clear-chat-button:hover { color: #f44336; }
         
-        #online-status {
-            position: absolute;
-            left: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 0.9em;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-        }
-        .online-dot, .offline-dot {
-            height: 10px;
-            width: 10px;
-            border-radius: 50%;
-            display: inline-block;
-            margin-right: 8px;
-        }
+        #online-status { position: absolute; left: 20px; top: 50%; transform: translateY(-50%); font-size: 0.9em; font-weight: 500; display: flex; align-items: center; }
+        .online-dot, .offline-dot { height: 10px; width: 10px; border-radius: 50%; display: inline-block; margin-right: 8px; }
         .online-dot { background-color: #4caf50; }
         .offline-dot { background-color: #ccc; }
 
@@ -139,15 +82,8 @@
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            background-color: #f9fbfd;
         }
-
-        /* --- Scrollbar đẹp hơn --- */
-        #chat-box::-webkit-scrollbar { width: 6px; }
-        #chat-box::-webkit-scrollbar-track { background: #f1f1f1; }
-        #chat-box::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
-        #chat-box::-webkit-scrollbar-thumb:hover { background: #aaa; }
-
+        
         #input-container {
             display: flex;
             align-items: center;
@@ -158,105 +94,95 @@
 
         #message-input {
             flex-grow: 1;
-            padding: 12px 20px;
-            border: 1px solid #e0e0e0;
-            background-color: #f7f7f7;
-            border-radius: 22px;
+            padding: 10px 20px;
+            border: none; /* Bỏ viền */
+            background-color: #f0f2f5; /* Màu nền xám như Messenger */
+            border-radius: 20px; /* Bo tròn */
             margin-right: 12px;
             outline: none;
             font-size: 1em;
             font-family: var(--font-family);
-            transition: border-color 0.2s;
-        }
-        #message-input:focus {
-            border-color: #6d83f5;
         }
 
         #send-button {
             flex-shrink: 0;
-            width: 44px;
-            height: 44px;
-            background-image: var(--sent-bg);
-            color: white;
+            width: 40px;
+            height: 40px;
+            background-color: transparent;
+            color: var(--sent-bg);
             border: none;
             border-radius: 50%;
             cursor: pointer;
-            font-size: 1em;
-            transition: transform 0.2s, box-shadow 0.2s;
+            transition: background-color 0.2s;
             display: flex;
             align-items: center;
             justify-content: center;
         }
-        #send-button:hover {
-            transform: translateY(-2px) scale(1.05);
-            box-shadow: 0 4px 15px rgba(93, 120, 246, 0.4);
-        }
-        #send-button svg {
-            width: 20px;
-            height: 20px;
-            margin-left: 2px;
-        }
-
-        /* --- Hiệu ứng tin nhắn mới --- */
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
+        #send-button:hover { background-color: #f0f2f5; }
+        #send-button svg { width: 24px; height: 24px; }
+        
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         .message-wrapper {
             display: flex;
             align-items: flex-end;
-            margin-bottom: 15px;
-            max-width: 80%;
+            margin-bottom: 10px;
+            max-width: 70%; /* Giới hạn độ rộng tin nhắn */
             animation: fadeInUp 0.4s ease-out;
         }
 
+        /* --- CÁC THAY ĐỔI THEO PHONG CÁCH FACEBOOK --- */
+
+        /* Tin nhắn được gom nhóm sẽ sát nhau hơn */
+        .message-wrapper.grouped {
+            margin-bottom: 2px;
+        }
+
         .avatar {
-            width: 40px;
-            height: 40px;
+            width: 28px;
+            height: 28px;
             border-radius: 50%;
             flex-shrink: 0;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            border: 2px solid white;
+            margin-right: 8px;
         }
 
+        /* Tin nhắn gửi đi (bên phải) */
         .message-wrapper.sent {
             align-self: flex-end;
-            flex-direction: row-reverse;
         }
-        .message-wrapper.sent .avatar { margin-left: 12px; }
-
+        /* ẨN AVATAR của tin nhắn gửi đi */
+        .message-wrapper.sent .avatar {
+            display: none;
+        }
+        
+        /* Tin nhắn nhận được (bên trái) */
         .message-wrapper.received {
             align-self: flex-start;
         }
-        .message-wrapper.received .avatar { margin-right: 12px; }
-
+        
+        /* Ẩn avatar của các tin nhắn nhận được nhưng không phải tin cuối cùng trong chuỗi */
+        .message-wrapper.hide-avatar .avatar {
+            visibility: hidden; /* Dùng visibility để giữ khoảng trống, không làm lệch tin nhắn */
+        }
+        
         .message-bubble {
             max-width: 100%;
-            padding: 12px 18px;
-            border-radius: 18px;
+            padding: 10px 15px;
+            border-radius: 18px; /* Bo tròn kiểu Messenger */
             word-wrap: break-word;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
-            line-height: 1.5;
+            line-height: 1.4;
         }
 
-        .sent {
-            background-image: var(--sent-bg);
+        .sent .message-bubble {
+            background-color: var(--sent-bg);
             color: var(--text-light);
-            border-bottom-right-radius: 4px; /* Tạo "đuôi" cho tin nhắn */
         }
 
-        .received {
+        .received .message-bubble {
             background-color: var(--received-bg);
             color: var(--text-dark);
-            border-bottom-left-radius: 4px; /* Tạo "đuôi" cho tin nhắn */
         }
+
     </style>
 </head>
 <body>
@@ -277,7 +203,7 @@
         </div>
         <div id="chat-box"></div>
         <div id="input-container">
-            <input type="text" id="message-input" placeholder="Nhập tin nhắn...">
+            <input type="text" id="message-input" placeholder="Aa">
             <button id="send-button">
                 <svg fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path>
@@ -292,7 +218,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
 
     <script>
-        // PHẦN JAVASCRIPT GIỮ NGUYÊN, KHÔNG CẦN THAY ĐỔI
+        // CÁC BIẾN VÀ CÀI ĐẶT FIREBASE GIỮ NGUYÊN
         var firebaseConfig = {
             apiKey: "AIzaSyC0VFKSVNkdamO1-vVWtp_J8wusem4pm6I",
             authDomain: "chat-e4c3b.firebaseapp.com",
@@ -328,127 +254,66 @@
             "AQQ9TjfkjZacKeBT8NdwlGUio2L2": "https://i.pravatar.cc/150?u=AQQ9TjfkjZacKeBT8NdwlGUio2L2",
             "sbx22l48QxSXrwd996hcWUashMw1": "https://i.pravatar.cc/150?u=sbx22l48QxSXrwd996hcWUashMw1"
         };
-
-        loginForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            var email = emailInput.value;
-            var password = passwordInput.value;
-            auth.signInWithEmailAndPassword(email, password)
-                .catch(function(error) {
-                    alert(error.message);
-                });
-        });
-
-        auth.onAuthStateChanged(function(user) {
-            if (user) {
-                currentUser = user;
-                loginContainer.style.display = 'none';
-                chatContainer.style.display = 'flex';
-                
-                partnerId = (currentUser.uid === user1Id) ? user2Id : user1Id;
-                
-                console.log("Đã đăng nhập thành công. Current User ID:", currentUser.uid);
-                console.log("Partner ID:", partnerId);
-
-                loadMessages();
-                setupOnlineStatus();
-            } else {
-                currentUser = null;
-                loginContainer.style.display = 'block';
-                chatContainer.style.display = 'none';
-            }
-        });
-
-        function sendMessage() {
-            if (!currentUser) return;
-            var messageText = messageInput.value.trim();
-            if (messageText !== "") {
-                dbFirestore.collection("messages").add({
-                    text: messageText,
-                    senderId: currentUser.uid,
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                });
-                messageInput.value = "";
-            }
-        }
         
+        // CÁC HÀM CƠ BẢN GIỮ NGUYÊN
+        loginForm.addEventListener('submit', function(e) { /* ... */ e.preventDefault(); auth.signInWithEmailAndPassword(emailInput.value, passwordInput.value).catch(function(error) { alert(error.message); }); });
+        auth.onAuthStateChanged(function(user) { if (user) { currentUser = user; loginContainer.style.display = 'none'; chatContainer.style.display = 'flex'; partnerId = (currentUser.uid === user1Id) ? user2Id : user1Id; loadMessages(); setupOnlineStatus(); } else { currentUser = null; loginContainer.style.display = 'block'; chatContainer.style.display = 'none'; } });
+        function sendMessage() { if (!currentUser) return; var messageText = messageInput.value.trim(); if (messageText !== "") { dbFirestore.collection("messages").add({ text: messageText, senderId: currentUser.uid, timestamp: firebase.firestore.FieldValue.serverTimestamp() }); messageInput.value = ""; } }
         sendButton.addEventListener('click', sendMessage);
+        messageInput.addEventListener('keypress', function(e) { if (e.key === 'Enter') { e.preventDefault(); sendMessage(); } });
+        clearChatButton.addEventListener('click', function() { if (confirm("Bạn có chắc chắn muốn xóa toàn bộ tin nhắn không?")) { dbFirestore.collection("messages").get().then(function(querySnapshot) { querySnapshot.forEach(function(doc) { doc.ref.delete(); }); }); } });
+        function setupOnlineStatus() { /* ... */ var userStatusRef = dbRealtime.ref('status/' + currentUser.uid); var partnerStatusRef = dbRealtime.ref('status/' + partnerId); userStatusRef.set({ online: true }); userStatusRef.onDisconnect().set({ online: false }); partnerStatusRef.on('value', (snapshot) => { const partnerStatus = snapshot.val(); if (partnerStatus && partnerStatus.online) { onlineStatusDiv.innerHTML = '<span class="online-dot"></span> Đang hoạt động'; } else { onlineStatusDiv.innerHTML = '<span class="offline-dot"></span> Ngoại tuyến'; } }); }
 
-        messageInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                sendMessage();
-            }
-        });
-
-        clearChatButton.addEventListener('click', function() {
-            if (confirm("Bạn có chắc chắn muốn xóa toàn bộ tin nhắn không?")) {
-                dbFirestore.collection("messages").get().then(function(querySnapshot) {
-                    querySnapshot.forEach(function(doc) {
-                        doc.ref.delete();
-                    });
-                });
-            }
-        });
-
+        // --- HÀM loadMessages ĐƯỢC CẬP NHẬT HOÀN TOÀN ĐỂ GIỐNG FACEBOOK ---
         function loadMessages() {
             dbFirestore.collection("messages").orderBy("timestamp").onSnapshot(function(snapshot) {
-                snapshot.docChanges().forEach(function(change) {
-                    if (change.type === "added") {
-                        chatBox.innerHTML = ''; // Xóa tin nhắn cũ để vẽ lại
-                    }
-                });
+                chatBox.innerHTML = ''; // Xóa toàn bộ chat box để vẽ lại từ đầu
 
-                // Vẽ lại toàn bộ tin nhắn để đảm bảo "đuôi" tin nhắn đúng vị trí
                 let messages = [];
                 snapshot.forEach(doc => {
-                    messages.push(doc.data());
+                    messages.push({ id: doc.id, ...doc.data() });
                 });
 
                 messages.forEach((msg, index) => {
-                    var wrapper = document.createElement('div');
+                    // Lấy thông tin người gửi của tin nhắn trước và sau
+                    const prevSender = (index > 0) ? messages[index - 1].senderId : null;
+                    const nextSender = (index < messages.length - 1) ? messages[index + 1].senderId : null;
+                    
+                    const wrapper = document.createElement('div');
                     wrapper.classList.add('message-wrapper');
-
-                    var avatar = document.createElement('img');
+                    
+                    const avatar = document.createElement('img');
                     avatar.classList.add('avatar');
                     avatar.src = avatarUrls[msg.senderId] || 'https://i.pravatar.cc/150';
 
-                    var messageBubble = document.createElement('div');
+                    const messageBubble = document.createElement('div');
                     messageBubble.classList.add('message-bubble');
                     messageBubble.textContent = msg.text;
-
-                    if (msg.senderId === currentUser.uid) {
-                        wrapper.classList.add('sent');
-                        messageBubble.classList.add('sent');
-                    } else {
-                        wrapper.classList.add('received');
-                        messageBubble.classList.add('received');
-                    }
                     
+                    // Thêm avatar trước bong bóng chat
                     wrapper.appendChild(avatar);
                     wrapper.appendChild(messageBubble);
+
+                    // Xử lý logic hiển thị
+                    if (msg.senderId === currentUser.uid) {
+                        wrapper.classList.add('sent');
+                    } else {
+                        wrapper.classList.add('received');
+                        // Nếu tin nhắn tiếp theo vẫn của người này, ẩn avatar của tin hiện tại
+                        if (msg.senderId === nextSender) {
+                            wrapper.classList.add('hide-avatar');
+                        }
+                    }
+
+                    // Nếu tin nhắn này của cùng người gửi với tin nhắn trước, gom nhóm chúng lại
+                    if (msg.senderId === prevSender) {
+                        wrapper.classList.add('grouped');
+                    }
                     
                     chatBox.appendChild(wrapper);
                 });
+
                 chatBox.scrollTop = chatBox.scrollHeight;
-            });
-        }
-        
-        function setupOnlineStatus() {
-            var userStatusRef = dbRealtime.ref('status/' + currentUser.uid);
-            var partnerStatusRef = dbRealtime.ref('status/' + partnerId);
-
-            userStatusRef.set({ online: true });
-            userStatusRef.onDisconnect().set({ online: false });
-
-            partnerStatusRef.on('value', (snapshot) => {
-                const partnerStatus = snapshot.val();
-                
-                if (partnerStatus && partnerStatus.online) {
-                    onlineStatusDiv.innerHTML = '<span class="online-dot"></span> Đang hoạt động';
-                } else {
-                    onlineStatusDiv.innerHTML = '<span class="offline-dot"></span> Ngoại tuyến';
-                }
             });
         }
     </script>

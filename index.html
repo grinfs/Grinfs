@@ -121,6 +121,45 @@
             flex-direction: column;
         }
 
+        .message-container {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 10px;
+            gap: 10px;
+        }
+        .message-container.sent {
+            justify-content: flex-end;
+        }
+        .message-container.received {
+            justify-content: flex-start;
+        }
+
+        .message-bubble {
+            max-width: 70%;
+            padding: 10px 15px;
+            border-radius: 20px;
+            word-wrap: break-word;
+        }
+
+        .sent .message-bubble {
+            background-color: #007bff;
+            color: white;
+            border-bottom-right-radius: 5px;
+        }
+
+        .received .message-bubble {
+            background-color: #e4e6eb;
+            color: #333;
+            border-bottom-left-radius: 5px;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
         #input-container {
             display: flex;
             padding: 10px;
@@ -151,26 +190,6 @@
 
         #send-button:hover {
             background-color: #0056b3;
-        }
-
-        .message-bubble {
-            max-width: 70%;
-            padding: 10px 15px;
-            border-radius: 20px;
-            margin-bottom: 10px;
-            word-wrap: break-word;
-        }
-
-        .sent {
-            align-self: flex-end;
-            background-color: #007bff;
-            color: white;
-        }
-
-        .received {
-            align-self: flex-start;
-            background-color: #e4e6eb;
-            color: #333;
         }
     </style>
 </head>
@@ -229,9 +248,15 @@
         var onlineStatusDiv = document.getElementById('online-status');
 
         var currentUser = null;
-        var user1Id = "AQG9TJfjkZacKeBT8NdwlGUio2L2"; // UID của tuanh@gmail.com
+        var user1Id = "AQQ9TjfkjZacKeBT8NdwlGUio2L2"; // UID của tuanh@gmail.com
         var user2Id = "sbx22l48QxSXrwd996hcWUashMw1"; // UID của grinfs@gmail.com
         var partnerId = null;
+
+        // BƯỚC QUAN TRỌNG: Đặt URL avatar của bạn và bạn gái ở đây
+        var avatars = {
+            "AQQ9TjfkjZacKeBT8NdwlGUio2L2": "https://cdn-icons-png.flaticon.com/512/147/147142.png", // Avatar của tuanh@gmail.com
+            "sbx22l48QxSXrwd996hcWUashMw1": "https://cdn-icons-png.flaticon.com/512/147/147144.png" // Avatar của grinfs@gmail.com
+        };
 
         loginForm.addEventListener('submit', function(e) {
             e.preventDefault();
@@ -251,9 +276,6 @@
                 
                 partnerId = (currentUser.uid === user1Id) ? user2Id : user1Id;
                 
-                console.log("Đã đăng nhập thành công. Current User ID:", currentUser.uid);
-                console.log("Partner ID:", partnerId);
-
                 loadMessages();
                 setupOnlineStatus();
             } else {
@@ -270,6 +292,7 @@
                 dbFirestore.collection("messages").add({
                     text: messageText,
                     senderId: currentUser.uid,
+                    avatar: avatars[currentUser.uid], // Gửi kèm URL avatar
                     timestamp: firebase.firestore.FieldValue.serverTimestamp()
                 });
                 messageInput.value = "";
@@ -300,15 +323,29 @@
                 snapshot.docChanges().forEach(function(change) {
                     if (change.type === "added") {
                         var msg = change.doc.data();
+                        
+                        var messageContainer = document.createElement('div');
+                        messageContainer.classList.add('message-container');
+
                         var messageElement = document.createElement('div');
                         messageElement.classList.add('message-bubble');
+                        
+                        var avatarElement = document.createElement('img');
+                        avatarElement.classList.add('avatar');
+                        avatarElement.src = msg.avatar;
+
                         if (msg.senderId === currentUser.uid) {
-                            messageElement.classList.add('sent');
+                            messageContainer.classList.add('sent');
+                            messageContainer.appendChild(messageElement);
+                            messageContainer.appendChild(avatarElement);
                         } else {
-                            messageElement.classList.add('received');
+                            messageContainer.classList.add('received');
+                            messageContainer.appendChild(avatarElement);
+                            messageContainer.appendChild(messageElement);
                         }
+                        
                         messageElement.textContent = msg.text;
-                        chatBox.appendChild(messageElement);
+                        chatBox.appendChild(messageContainer);
                         chatBox.scrollTop = chatBox.scrollHeight;
                     }
                 });
@@ -324,18 +361,11 @@
 
             partnerStatusRef.on('value', (snapshot) => {
                 const partnerStatus = snapshot.val();
-                
-                // Log để kiểm tra chính xác dữ liệu từ server
-                console.log("Dữ liệu trạng thái nhận được:", partnerStatus);
-                console.log("Kiểu dữ liệu:", typeof partnerStatus);
-
                 if (partnerStatus && partnerStatus.online) {
                     onlineStatusDiv.innerHTML = '<span class="online-dot"></span> Đang hoạt động';
                 } else {
                     onlineStatusDiv.innerHTML = '<span class="offline-dot"></span> Ngoại tuyến';
                 }
-            }, (error) => {
-                console.error("Lỗi khi lắng nghe trạng thái online:", error);
             });
         }
     </script>

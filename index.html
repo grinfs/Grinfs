@@ -120,46 +120,6 @@
             display: flex;
             flex-direction: column;
         }
-        
-        /* CSS MỚI CHO AVATAR */
-        .message-container {
-            display: flex;
-            align-items: flex-start;
-            margin-bottom: 10px;
-            gap: 10px;
-        }
-        .message-container.sent {
-            justify-content: flex-end;
-        }
-        .message-container.received {
-            justify-content: flex-start;
-        }
-        
-        .avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            object-fit: cover;
-        }
-
-        .message-bubble {
-            max-width: 70%;
-            padding: 10px 15px;
-            border-radius: 20px;
-            word-wrap: break-word;
-        }
-
-        .sent .message-bubble {
-            background-color: #007bff;
-            color: white;
-            border-bottom-right-radius: 5px;
-        }
-
-        .received .message-bubble {
-            background-color: #e4e6eb;
-            color: #333;
-            border-bottom-left-radius: 5px;
-        }
 
         #input-container {
             display: flex;
@@ -192,6 +152,62 @@
         #send-button:hover {
             background-color: #0056b3;
         }
+
+        /* --- PHẦN ĐƯỢC THÊM VÀ CHỈNH SỬA --- */
+
+        /* Container mới cho avatar và bong bóng chat */
+        .message-wrapper {
+            display: flex;
+            align-items: flex-end;
+            margin-bottom: 10px;
+            max-width: 80%;
+        }
+
+        /* Kiểu cho avatar */
+        .avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            flex-shrink: 0; /* Ngăn avatar bị co lại */
+        }
+
+        /* Căn chỉnh cho tin nhắn đã gửi (bên phải) */
+        .message-wrapper.sent {
+            align-self: flex-end;
+            flex-direction: row-reverse; /* Đảo ngược thứ tự avatar và tin nhắn */
+        }
+        .message-wrapper.sent .avatar {
+            margin-left: 10px;
+        }
+
+        /* Căn chỉnh cho tin nhắn đã nhận (bên trái) */
+        .message-wrapper.received {
+            align-self: flex-start;
+        }
+        .message-wrapper.received .avatar {
+            margin-right: 10px;
+        }
+
+        .message-bubble {
+            max-width: 100%; /* Bong bóng chat chiếm toàn bộ chiều rộng của wrapper */
+            padding: 10px 15px;
+            border-radius: 20px;
+            /* margin-bottom đã được chuyển sang .message-wrapper */
+            word-wrap: break-word;
+        }
+
+        .sent {
+            /* align-self đã được chuyển sang .message-wrapper.sent */
+            background-color: #007bff;
+            color: white;
+        }
+
+        .received {
+            /* align-self đã được chuyển sang .message-wrapper.received */
+            background-color: #e4e6eb;
+            color: #333;
+        }
+        /* --- KẾT THÚC PHẦN THAY ĐỔI --- */
     </style>
 </head>
 <body>
@@ -226,7 +242,7 @@
             apiKey: "AIzaSyC0VFKSVNkdamO1-vVWtp_J8wusem4pm6I",
             authDomain: "chat-e4c3b.firebaseapp.com",
             projectId: "chat-e4c3b",
-            storageBucket: "chat-e4c3b.firebasestorage.app",
+            storageBucket: "chat-e4c3b.appspot.com",
             messagingSenderId: "569274547195",
             appId: "1:569274547195:web:dd2b0629d31cc2f9f6695e",
             databaseURL: "https://chat-e4c3b-default-rtdb.asia-southeast1.firebasedatabase.app"
@@ -253,10 +269,13 @@
         var user2Id = "sbx22l48QxSXrwd996hcWUashMw1"; // UID của grinfs@gmail.com
         var partnerId = null;
 
-         var avatars = {
-            "AQQ9TjfkjZacKeBT8NdwlGUio2L2": "https://cdn-icons-png.flaticon.com/512/147/147144.png", // Thay bằng URL avatar của bạn
-            "sbx22l48QxSXrwd996hcWUashMw1": "https://cdn-icons-png.flaticon.com/512/147/147144.png" // Thay bằng URL avatar của bạn gái
+        // --- PHẦN ĐƯỢC THÊM ---
+        // Map UID với URL avatar tương ứng. Thay bằng URL ảnh thật của bạn.
+        var avatarUrls = {
+            "AQQ9TjfkjZacKeBT8NdwlGUio2L2": "https://i.pravatar.cc/150?u=AQQ9TjfkjZacKeBT8NdwlGUio2L2",
+            "sbx22l48QxSXrwd996hcWUashMw1": "https://i.pravatar.cc/150?u=sbx22l48QxSXrwd996hcWUashMw1"
         };
+        // --- KẾT THÚC PHẦN THÊM ---
 
         loginForm.addEventListener('submit', function(e) {
             e.preventDefault();
@@ -276,6 +295,9 @@
                 
                 partnerId = (currentUser.uid === user1Id) ? user2Id : user1Id;
                 
+                console.log("Đã đăng nhập thành công. Current User ID:", currentUser.uid);
+                console.log("Partner ID:", partnerId);
+
                 loadMessages();
                 setupOnlineStatus();
             } else {
@@ -292,7 +314,6 @@
                 dbFirestore.collection("messages").add({
                     text: messageText,
                     senderId: currentUser.uid,
-                    avatar: avatars[currentUser.uid], // Gửi kèm URL avatar
                     timestamp: firebase.firestore.FieldValue.serverTimestamp()
                 });
                 messageInput.value = "";
@@ -318,39 +339,46 @@
             }
         });
 
+        // --- HÀM ĐƯỢC CHỈNH SỬA ---
         function loadMessages() {
             dbFirestore.collection("messages").orderBy("timestamp").onSnapshot(function(snapshot) {
                 snapshot.docChanges().forEach(function(change) {
                     if (change.type === "added") {
                         var msg = change.doc.data();
-                        
-                        var messageContainer = document.createElement('div');
-                        messageContainer.classList.add('message-container');
 
-                        var messageElement = document.createElement('div');
-                        messageElement.classList.add('message-bubble');
-                        
-                        var avatarElement = document.createElement('img');
-                        avatarElement.classList.add('avatar');
-                        avatarElement.src = msg.avatar;
+                        // Tạo các element mới: wrapper, avatar, và bubble
+                        var wrapper = document.createElement('div');
+                        wrapper.classList.add('message-wrapper');
 
+                        var avatar = document.createElement('img');
+                        avatar.classList.add('avatar');
+                        avatar.src = avatarUrls[msg.senderId] || 'https://i.pravatar.cc/150'; // Avatar mặc định
+
+                        var messageBubble = document.createElement('div');
+                        messageBubble.classList.add('message-bubble');
+                        messageBubble.textContent = msg.text;
+
+                        // Gán class 'sent' hoặc 'received'
                         if (msg.senderId === currentUser.uid) {
-                            messageContainer.classList.add('sent');
-                            messageContainer.appendChild(messageElement);
-                            messageContainer.appendChild(avatarElement);
+                            wrapper.classList.add('sent');
+                            messageBubble.classList.add('sent');
                         } else {
-                            messageContainer.classList.add('received');
-                            messageContainer.appendChild(avatarElement);
-                            messageContainer.appendChild(messageElement);
+                            wrapper.classList.add('received');
+                            messageBubble.classList.add('received');
                         }
+
+                        // Ghép các element lại với nhau
+                        wrapper.appendChild(avatar);
+                        wrapper.appendChild(messageBubble);
                         
-                        messageElement.textContent = msg.text;
-                        chatBox.appendChild(messageContainer);
+                        // Thêm vào hộp chat
+                        chatBox.appendChild(wrapper);
                         chatBox.scrollTop = chatBox.scrollHeight;
                     }
                 });
             });
         }
+        // --- KẾT THÚC PHẦN CHỈNH SỬA ---
         
         function setupOnlineStatus() {
             var userStatusRef = dbRealtime.ref('status/' + currentUser.uid);
@@ -362,6 +390,10 @@
             partnerStatusRef.on('value', (snapshot) => {
                 const partnerStatus = snapshot.val();
                 
+                // Log để kiểm tra chính xác dữ liệu từ server
+                console.log("Dữ liệu trạng thái nhận được:", partnerStatus);
+                console.log("Kiểu dữ liệu:", typeof partnerStatus);
+
                 if (partnerStatus && partnerStatus.online) {
                     onlineStatusDiv.innerHTML = '<span class="online-dot"></span> Đang hoạt động';
                 } else {

@@ -72,6 +72,20 @@
             padding: 15px;
             font-size: 1.2em;
             text-align: center;
+            position: relative;
+        }
+        
+        #clear-chat-button {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
         }
 
         #chat-box {
@@ -146,7 +160,10 @@
     </div>
 
     <div id="chat-container">
-        <div id="chat-header">Chat riêng tư</div>
+        <div id="chat-header">
+            Chat riêng tư
+            <button id="clear-chat-button">Xóa tin nhắn</button>
+        </div>
         <div id="chat-box"></div>
         <div id="input-container">
             <input type="text" id="message-input" placeholder="Nhập tin nhắn của bạn...">
@@ -180,6 +197,7 @@
         var chatBox = document.getElementById('chat-box');
         var messageInput = document.getElementById('message-input');
         var sendButton = document.getElementById('send-button');
+        var clearChatButton = document.getElementById('clear-chat-button'); // Nút xóa tin nhắn
 
         var currentUser = null;
 
@@ -230,6 +248,19 @@
                 sendMessage();
             }
         });
+
+        // Xóa toàn bộ tin nhắn
+        clearChatButton.addEventListener('click', function() {
+            if (confirm("Bạn có chắc chắn muốn xóa toàn bộ tin nhắn không?")) {
+                db.collection("messages").get().then(function(querySnapshot) {
+                    querySnapshot.forEach(function(doc) {
+                        doc.ref.delete();
+                    });
+                    chatBox.innerHTML = ''; // Xóa tin nhắn trên giao diện
+                });
+            }
+        });
+
 
         function loadMessages() {
             db.collection("messages").orderBy("timestamp").onSnapshot(function(snapshot) {

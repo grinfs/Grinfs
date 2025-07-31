@@ -251,6 +251,9 @@
                 
                 partnerId = (currentUser.uid === user1Id) ? user2Id : user1Id;
                 
+                console.log("Current User ID:", currentUser.uid);
+                console.log("Partner ID:", partnerId);
+                
                 loadMessages();
                 setupOnlineStatus();
             } else {
@@ -316,11 +319,15 @@
             var userStatusRef = dbRealtime.ref('status/' + currentUser.uid);
             var partnerStatusRef = dbRealtime.ref('status/' + partnerId);
 
+            console.log("Cố gắng kết nối tới Realtime Database với ID:", currentUser.uid);
+            console.log("Cố gắng lắng nghe trạng thái của đối phương với ID:", partnerId);
+
             userStatusRef.set({ online: true });
             userStatusRef.onDisconnect().set({ online: false });
 
             partnerStatusRef.on('value', (snapshot) => {
                 const partnerStatus = snapshot.val();
+                console.log("Dữ liệu trạng thái nhận được:", partnerStatus);
                 if (partnerStatus && partnerStatus.online) {
                     onlineStatusDiv.innerHTML = '<span class="online-dot"></span> Đang hoạt động';
                 } else {

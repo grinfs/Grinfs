@@ -23,14 +23,14 @@
     <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
 
     <script>
-        // BƯỚC QUAN TRỌNG: Thay thế các thông tin dưới đây bằng thông tin dự án Firebase của bạn
+        // Thông tin dự án Firebase của bạn đã được chỉnh sửa
         var firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_PROJECT_ID.appspot.com",
-            messagingSenderId: "YOUR_SENDER_ID",
-            appId: "YOUR_APP_ID"
+            apiKey: "AIzaSyC0VFKSVNkdamO1-vVWtp_J8wusem4pm6I",
+            authDomain: "chat-e4c3b.firebaseapp.com",
+            projectId: "chat-e4c3b",
+            storageBucket: "chat-e4c3b.firebasestorage.app",
+            messagingSenderId: "569274547195",
+            appId: "1:569274547195:web:dd2b0629d31cc2f9f6695e"
         };
         firebase.initializeApp(firebaseConfig);
         var db = firebase.firestore();
@@ -46,8 +46,6 @@
                     var msg = change.doc.data();
                     var messageElement = document.createElement('div');
                     messageElement.classList.add('message');
-                    // Bạn có thể chỉnh sửa để phân biệt tin nhắn của ai
-                    // messageElement.classList.add(msg.sender === "me" ? "me" : "you");
                     messageElement.textContent = msg.text;
                     chatBox.appendChild(messageElement);
                     chatBox.scrollTop = chatBox.scrollHeight;

@@ -7,11 +7,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
         :root {
-            /* MÀU SẮC CHUẨN FACEBOOK MESSENGER */
             --sent-bg: #0084ff;
             --received-bg: #e4e6eb;
-            --body-bg: #fff; /* Nền trắng như Messenger */
-            --text-dark: #050505; /* Màu chữ chính */
+            --body-bg: #fff;
+            --text-dark: #050505;
             --text-light: #fff;
             --font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
@@ -27,7 +26,6 @@
         }
 
         #login-container {
-            /* ... Giữ nguyên giao diện đăng nhập ... */
             width: 100%;
             max-width: 400px;
             padding: 20px;
@@ -53,7 +51,7 @@
             border-radius: 16px;
             overflow: hidden;
             display: none;
-            border: 1px solid #ddd; /* Thêm viền để rõ hơn */
+            border: 1px solid #ddd;
         }
 
         #chat-header {
@@ -95,9 +93,9 @@
         #message-input {
             flex-grow: 1;
             padding: 10px 20px;
-            border: none; /* Bỏ viền */
-            background-color: #f0f2f5; /* Màu nền xám như Messenger */
-            border-radius: 20px; /* Bo tròn */
+            border: none;
+            background-color: #f0f2f5;
+            border-radius: 20px;
             margin-right: 12px;
             outline: none;
             font-size: 1em;
@@ -127,48 +125,55 @@
             display: flex;
             align-items: flex-end;
             margin-bottom: 10px;
-            max-width: 70%; /* Giới hạn độ rộng tin nhắn */
+            max-width: 70%;
             animation: fadeInUp 0.4s ease-out;
         }
 
-        /* --- CÁC THAY ĐỔI THEO PHONG CÁCH FACEBOOK --- */
-
-        /* Tin nhắn được gom nhóm sẽ sát nhau hơn */
         .message-wrapper.grouped {
             margin-bottom: 2px;
         }
 
         .avatar {
-            width: 40px;  /* Thay đổi từ 28px thành 40px */
-            height: 40px; /* Thay đổi từ 28px thành 40px */
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
             flex-shrink: 0;
-            margin-right: 12px; /* Có thể tăng cả margin để khoảng cách đẹp hơn */
         }
 
+        /* --- CÁC THAY ĐỔI CSS --- */
+        
         /* Tin nhắn gửi đi (bên phải) */
         .message-wrapper.sent {
             align-self: flex-end;
+            flex-direction: row-reverse; /* Đảo ngược thứ tự để avatar bên phải */
         }
-        /* ẨN AVATAR của tin nhắn gửi đi */
+        
+        /* THÊM: Căn lề cho avatar của tin nhắn gửi đi */
         .message-wrapper.sent .avatar {
-            display: none;
+            margin-left: 12px;
         }
+
+        /* BỎ: Quy tắc ẩn avatar của tin nhắn gửi đi đã bị xóa */
         
         /* Tin nhắn nhận được (bên trái) */
         .message-wrapper.received {
             align-self: flex-start;
         }
+
+        /* Căn lề cho avatar của tin nhắn nhận được */
+        .message-wrapper.received .avatar {
+            margin-right: 12px;
+        }
         
-        /* Ẩn avatar của các tin nhắn nhận được nhưng không phải tin cuối cùng trong chuỗi */
+        /* Quy tắc này giờ áp dụng cho cả hai bên */
         .message-wrapper.hide-avatar .avatar {
-            visibility: hidden; /* Dùng visibility để giữ khoảng trống, không làm lệch tin nhắn */
+            visibility: hidden;
         }
         
         .message-bubble {
             max-width: 100%;
             padding: 10px 15px;
-            border-radius: 18px; /* Bo tròn kiểu Messenger */
+            border-radius: 18px;
             word-wrap: break-word;
             line-height: 1.4;
         }
@@ -218,7 +223,6 @@
     <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
 
     <script>
-        // CÁC BIẾN VÀ CÀI ĐẶT FIREBASE GIỮ NGUYÊN
         var firebaseConfig = {
             apiKey: "AIzaSyC0VFKSVNkdamO1-vVWtp_J8wusem4pm6I",
             authDomain: "chat-e4c3b.firebaseapp.com",
@@ -232,42 +236,37 @@
         var dbFirestore = firebase.firestore();
         var dbRealtime = firebase.database();
         var auth = firebase.auth();
-
         var loginContainer = document.getElementById('login-container');
         var chatContainer = document.getElementById('chat-container');
         var loginForm = document.getElementById('login-form');
         var emailInput = document.getElementById('email-input');
         var passwordInput = document.getElementById('password-input');
-
         var chatBox = document.getElementById('chat-box');
         var messageInput = document.getElementById('message-input');
         var sendButton = document.getElementById('send-button');
         var clearChatButton = document.getElementById('clear-chat-button');
         var onlineStatusDiv = document.getElementById('online-status');
-
         var currentUser = null;
         var user1Id = "AQG9TJfjkZacKeBT8NdwlGUio2L2"; // UID của tuanh@gmail.com
         var user2Id = "sbx22l48QxSXrwd996hcWUashMw1"; // UID của grinfs@gmail.com
         var partnerId = null;
-
         var avatarUrls = {
             "AQG9TJfjkZacKeBT8NdwlGUio2L2": "https://i.pinimg.com/736x/63/bc/bb/63bcbb4ee332aaa9b7271d4ff12cb0b5.jpg",
             "sbx22l48QxSXrwd996hcWUashMw1": "https://i.pinimg.com/736x/0b/c0/2c/0bc02ca7218ee73db799d09518f07363.jpg"
         };
         
-        // CÁC HÀM CƠ BẢN GIỮ NGUYÊN
-        loginForm.addEventListener('submit', function(e) { /* ... */ e.preventDefault(); auth.signInWithEmailAndPassword(emailInput.value, passwordInput.value).catch(function(error) { alert(error.message); }); });
+        loginForm.addEventListener('submit', function(e) { e.preventDefault(); auth.signInWithEmailAndPassword(emailInput.value, passwordInput.value).catch(function(error) { alert(error.message); }); });
         auth.onAuthStateChanged(function(user) { if (user) { currentUser = user; loginContainer.style.display = 'none'; chatContainer.style.display = 'flex'; partnerId = (currentUser.uid === user1Id) ? user2Id : user1Id; loadMessages(); setupOnlineStatus(); } else { currentUser = null; loginContainer.style.display = 'block'; chatContainer.style.display = 'none'; } });
         function sendMessage() { if (!currentUser) return; var messageText = messageInput.value.trim(); if (messageText !== "") { dbFirestore.collection("messages").add({ text: messageText, senderId: currentUser.uid, timestamp: firebase.firestore.FieldValue.serverTimestamp() }); messageInput.value = ""; } }
         sendButton.addEventListener('click', sendMessage);
         messageInput.addEventListener('keypress', function(e) { if (e.key === 'Enter') { e.preventDefault(); sendMessage(); } });
         clearChatButton.addEventListener('click', function() { if (confirm("Bạn có chắc chắn muốn xóa toàn bộ tin nhắn không?")) { dbFirestore.collection("messages").get().then(function(querySnapshot) { querySnapshot.forEach(function(doc) { doc.ref.delete(); }); }); } });
-        function setupOnlineStatus() { /* ... */ var userStatusRef = dbRealtime.ref('status/' + currentUser.uid); var partnerStatusRef = dbRealtime.ref('status/' + partnerId); userStatusRef.set({ online: true }); userStatusRef.onDisconnect().set({ online: false }); partnerStatusRef.on('value', (snapshot) => { const partnerStatus = snapshot.val(); if (partnerStatus && partnerStatus.online) { onlineStatusDiv.innerHTML = '<span class="online-dot"></span> Đang hoạt động'; } else { onlineStatusDiv.innerHTML = '<span class="offline-dot"></span> Ngoại tuyến'; } }); }
+        function setupOnlineStatus() { var userStatusRef = dbRealtime.ref('status/' + currentUser.uid); var partnerStatusRef = dbRealtime.ref('status/' + partnerId); userStatusRef.set({ online: true }); userStatusRef.onDisconnect().set({ online: false }); partnerStatusRef.on('value', (snapshot) => { const partnerStatus = snapshot.val(); if (partnerStatus && partnerStatus.online) { onlineStatusDiv.innerHTML = '<span class="online-dot"></span> Đang hoạt động'; } else { onlineStatusDiv.innerHTML = '<span class="offline-dot"></span> Ngoại tuyến'; } }); }
 
-        // --- HÀM loadMessages ĐƯỢC CẬP NHẬT HOÀN TOÀN ĐỂ GIỐNG FACEBOOK ---
+        // --- HÀM loadMessages ĐƯỢC CẬP NHẬT ---
         function loadMessages() {
             dbFirestore.collection("messages").orderBy("timestamp").onSnapshot(function(snapshot) {
-                chatBox.innerHTML = ''; // Xóa toàn bộ chat box để vẽ lại từ đầu
+                chatBox.innerHTML = ''; 
 
                 let messages = [];
                 snapshot.forEach(doc => {
@@ -275,7 +274,6 @@
                 });
 
                 messages.forEach((msg, index) => {
-                    // Lấy thông tin người gửi của tin nhắn trước và sau
                     const prevSender = (index > 0) ? messages[index - 1].senderId : null;
                     const nextSender = (index < messages.length - 1) ? messages[index + 1].senderId : null;
                     
@@ -290,7 +288,6 @@
                     messageBubble.classList.add('message-bubble');
                     messageBubble.textContent = msg.text;
                     
-                    // Thêm avatar trước bong bóng chat
                     wrapper.appendChild(avatar);
                     wrapper.appendChild(messageBubble);
 
@@ -299,10 +296,12 @@
                         wrapper.classList.add('sent');
                     } else {
                         wrapper.classList.add('received');
-                        // Nếu tin nhắn tiếp theo vẫn của người này, ẩn avatar của tin hiện tại
-                        if (msg.senderId === nextSender) {
-                            wrapper.classList.add('hide-avatar');
-                        }
+                    }
+
+                    // --- LOGIC MỚI: Áp dụng cho cả hai bên ---
+                    // Nếu tin nhắn tiếp theo vẫn của người này, ẩn avatar của tin hiện tại
+                    if (msg.senderId === nextSender) {
+                        wrapper.classList.add('hide-avatar');
                     }
 
                     // Nếu tin nhắn này của cùng người gửi với tin nhắn trước, gom nhóm chúng lại

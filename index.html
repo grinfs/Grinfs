@@ -157,7 +157,6 @@
     <div id="chat-container">
         <div id="chat-header">
             <div id="online-status">...</div>
-            <h2 id="partner-name">Chat</h2>
             <button id="clear-chat-button">Xóa tin nhắn</button>
         </div>
         <div id="chat-box"></div>
@@ -180,12 +179,12 @@
             storageBucket: "chat-e4c3b.appspot.com",
             messagingSenderId: "569274547195",
             appId: "1:569274547195:web:dd2b0629d31cc2f9f6695e",
-            databaseURL: "https://chat-e4c3b-default-rtdb.firebaseio.com" // NEW: Thêm URL của Realtime Database
+            databaseURL: "https://chat-e4c3b-default-rtdb.firebaseio.com"
         };
         firebase.initializeApp(firebaseConfig);
         var db = firebase.firestore();
         var auth = firebase.auth();
-        var rtdb = firebase.database(); // NEW: Khởi tạo Realtime Database
+        var rtdb = firebase.database();
 
         var loginContainer = document.getElementById('login-container');
         var chatContainer = document.getElementById('chat-container');
@@ -198,13 +197,12 @@
         var sendButton = document.getElementById('send-button');
         var clearChatButton = document.getElementById('clear-chat-button');
         var onlineStatusDiv = document.getElementById('online-status');
-        var partnerNameH2 = document.getElementById('partner-name');
 
         var currentUser = null;
         var user1Id = "AQQ9TjfkjZacKeBT8NdwlGUio2L2"; // UID của tuanh@gmail.com
         var user2Id = "sbx22l48QxSXrwd996hcWUashMw1"; // UID của grinfs@gmail.com
         var partnerId = null;
-        var chatId = null; // NEW: ID định danh cho cuộc trò chuyện riêng tư
+        var chatId = null;
 
         loginForm.addEventListener('submit', function(e) {
             e.preventDefault();
@@ -222,16 +220,7 @@
                 loginContainer.style.display = 'none';
                 chatContainer.style.display = 'flex';
                 
-                // NEW: Xác định partner và tạo chatId duy nhất
-                if (currentUser.uid === user1Id) {
-                    partnerId = user2Id;
-                    partnerNameH2.textContent = "Chat với grinfs@gmail.com";
-                } else {
-                    partnerId = user1Id;
-                    partnerNameH2.textContent = "Chat với tuanh@gmail.com";
-                }
-
-                // Tạo chatId bằng cách ghép 2 UID theo thứ tự alphabet để đảm bảo 2 người dùng có cùng một ID
+                partnerId = (currentUser.uid === user1Id) ? user2Id : user1Id;
                 chatId = [currentUser.uid, partnerId].sort().join('_');
                 
                 loadMessages();
@@ -247,7 +236,6 @@
             if (!currentUser || !chatId) return;
             var messageText = messageInput.value.trim();
             if (messageText !== "") {
-                // CHANGED: Lưu tin nhắn vào collection riêng của cuộc trò chuyện
                 db.collection("private_chats").doc(chatId).collection("messages").add({
                     text: messageText,
                     senderId: currentUser.uid,
@@ -267,7 +255,6 @@
         clearChatButton.addEventListener('click', function() {
             if (!chatId) return;
             if (confirm("Bạn có chắc chắn muốn xóa toàn bộ tin nhắn trong cuộc trò chuyện này không?")) {
-                // CHANGED: Chỉ xóa tin nhắn trong collection của cuộc trò chuyện này
                 var messagesToDelete = db.collection("private_chats").doc(chatId).collection("messages");
                 messagesToDelete.get().then(function(querySnapshot) {
                     var batch = db.batch();
@@ -276,15 +263,14 @@
                     });
                     return batch.commit();
                 }).then(function() {
-                    chatBox.innerHTML = ''; // Xóa hiển thị sau khi xóa thành công
+                    chatBox.innerHTML = '';
                 });
             }
         });
 
         function loadMessages() {
             if (!chatId) return;
-            chatBox.innerHTML = ''; // Xóa tin nhắn cũ khi tải lại
-            // CHANGED: Lắng nghe thay đổi từ collection riêng của cuộc trò chuyện
+            chatBox.innerHTML = '';
             db.collection("private_chats").doc(chatId).collection("messages").orderBy("timestamp")
               .onSnapshot(function(snapshot) {
                 snapshot.docChanges().forEach(function(change) {
@@ -305,7 +291,6 @@
             });
         }
         
-        // NEW: Hàm quản lý trạng thái online/offline hoàn toàn mới
         function setupOnlineStatus() {
             if (!currentUser || !partnerId) return;
 
@@ -322,19 +307,15 @@
                 last_changed: firebase.database.ServerValue.TIMESTAMP,
             };
             
-            // Lắng nghe trạng thái kết nối của chính mình tới Firebase
             rtdb.ref('.info/connected').on('value', function(snapshot) {
                 if (snapshot.val() === false) {
                     return;
                 }
-                // Nếu kết nối bị ngắt (đóng tab, mất mạng), tự động cập nhật trạng thái offline
                 userStatusDatabaseRef.onDisconnect().set(isOfflineForDatabase).then(function() {
-                    // Khi đã thiết lập onDisconnect, cập nhật trạng thái online
                     userStatusDatabaseRef.set(isOnlineForDatabase);
                 });
             });
             
-            // Lắng nghe sự thay đổi trạng thái của người còn lại
             partnerStatusDatabaseRef.on('value', function(snapshot) {
                 if (snapshot.val() && snapshot.val().state === 'online') {
                     onlineStatusDiv.innerHTML = '<span class="online-dot"></span> Đang hoạt động';

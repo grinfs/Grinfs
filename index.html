@@ -199,7 +199,6 @@
     <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
 
     <script>
         var firebaseConfig = {
@@ -208,12 +207,10 @@
             projectId: "chat-e4c3b",
             storageBucket: "chat-e4c3b.firebasestorage.app",
             messagingSenderId: "569274547195",
-            appId: "1:569274547195:web:dd2b0629d31cc2f9f6695e",
-            databaseURL: "https://chat-e4c3b-default-rtdb.asia-southeast1.firebasedatabase.app"
+            appId: "1:569274547195:web:dd2b0629d31cc2f9f6695e"
         };
         firebase.initializeApp(firebaseConfig);
         var dbFirestore = firebase.firestore();
-        var dbRealtime = firebase.database();
         var auth = firebase.auth();
 
         var loginContainer = document.getElementById('login-container');
@@ -251,9 +248,9 @@
                 
                 partnerId = (currentUser.uid === user1Id) ? user2Id : user1Id;
                 
-                console.log("Current User ID:", currentUser.uid);
+                console.log("Đã đăng nhập thành công. Current User ID:", currentUser.uid);
                 console.log("Partner ID:", partnerId);
-                
+
                 loadMessages();
                 setupOnlineStatus();
             } else {
@@ -314,7 +311,47 @@
                 });
             });
         }
+        
+        function setupOnlineStatus() {
+            var userStatusRef = dbFirestore.collection('user_presence').doc(currentUser.uid);
+            var partnerStatusRef = dbFirestore.collection('user_presence').doc(partnerId);
 
+            // Ghi trạng thái của bạn khi đăng nhập
+            userStatusRef.set({
+                online: true,
+                last_seen: firebase.firestore.FieldValue.serverTimestamp()
+            });
+
+            // Lắng nghe trạng thái của người còn lại
+            partnerStatusRef.onSnapshot(function(doc) {
+                console.log("Đã nhận được dữ liệu trạng thái.");
+                if (doc.exists) {
+                    var lastSeen = doc.data().last_seen.toDate();
+                    var now = new Date();
+                    var diffSeconds = (now.getTime() - lastSeen.getTime()) / 1000;
+                    
+                    if (diffSeconds < 60) {
+                        onlineStatusDiv.innerHTML = '<span class="online-dot"></span> Đang hoạt động';
+                        console.log("Trạng thái: Đang hoạt động.");
+                    } else {
+                        onlineStatusDiv.innerHTML = '<span class="offline-dot"></span> Ngoại tuyến';
+                        console.log("Trạng thái: Ngoại tuyến.");
+                    }
+                } else {
+                    onlineStatusDiv.innerHTML = '<span class="offline-dot"></span> Ngoại tuyến';
+                    console.log("Trạng thái: Ngoại tuyến (Không tìm thấy dữ liệu).");
+                }
+            });
+
+            // Tự động cập nhật trạng thái của bạn mỗi 30 giây để duy trì trạng thái online
+            setInterval(() => {
+                userStatusRef.update({
+                    last_seen: firebase.firestore.FieldValue.serverTimestamp()
+                }).catch(function(error) {
+                    console.error("Lỗi khi cập nhật trạng thái online:", error);
+                });
+            }, 30000);
+        }
     </script>
 </body>
 </html>

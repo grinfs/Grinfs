@@ -318,9 +318,6 @@
 
             var partnerStatusRef = db.collection('user_presence').doc(partnerId);
             partnerStatusRef.onSnapshot(function(doc) {
-                console.log("Dữ liệu trạng thái của đối phương:", doc.data()); // Thêm dòng này
-                console.log("Current User ID:", currentUser.uid);
-                console.log("Partner ID:", partnerId);
                 if (doc.exists && doc.data().status === 'online') {
                     onlineStatusDiv.innerHTML = '<span class="online-dot"></span> Đang hoạt động';
                 } else {

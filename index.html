@@ -313,19 +313,17 @@
             var userStatusRef = db.collection('user_presence').doc(currentUser.uid);
             var partnerStatusRef = db.collection('user_presence').doc(partnerId);
 
-            // Cập nhật trạng thái của bạn
             userStatusRef.set({
                 last_seen: firebase.firestore.FieldValue.serverTimestamp()
-            });
+            }, { merge: true });
 
-            // Lắng nghe trạng thái của người còn lại
             partnerStatusRef.onSnapshot(function(doc) {
                 if (doc.exists) {
                     var lastSeen = doc.data().last_seen.toDate();
                     var now = new Date();
-                    var diffMinutes = (now - lastSeen) / 60000;
+                    var diffSeconds = (now.getTime() - lastSeen.getTime()) / 1000;
                     
-                    if (diffMinutes < 5) { // Coi là online nếu hoạt động trong 5 phút gần nhất
+                    if (diffSeconds < 60) {
                         onlineStatusDiv.innerHTML = '<span class="online-dot"></span> Đang hoạt động';
                     } else {
                         onlineStatusDiv.innerHTML = '<span class="offline-dot"></span> Ngoại tuyến';
@@ -335,12 +333,13 @@
                 }
             });
 
-            // Cập nhật trạng thái của bạn mỗi 30 giây để duy trì trạng thái online
             setInterval(() => {
                 userStatusRef.update({
                     last_seen: firebase.firestore.FieldValue.serverTimestamp()
+                }).catch(function(error) {
+                    console.error("Lỗi cập nhật trạng thái online:", error);
                 });
-            }, 30000); // 30000ms = 30 giây
+            }, 30000);
         }
     </script>
 </body>

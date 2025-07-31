@@ -88,6 +88,30 @@
             font-size: 1em;
             font-weight: bold;
         }
+        
+        #online-status {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.9em;
+        }
+        .online-dot {
+            height: 10px;
+            width: 10px;
+            background-color: #00ff00;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 5px;
+        }
+        .offline-dot {
+            height: 10px;
+            width: 10px;
+            background-color: #ccc;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 5px;
+        }
 
         #chat-box {
             flex-grow: 1;
@@ -154,7 +178,7 @@
     <div id="login-container">
         <h1>Đăng nhập</h1>
         <form id="login-form">
-            <input type="email" id="email-input" placeholder="Email" required>
+            <input type="email" id="email-input" placeholder="Tên đăng nhập" required>
             <input type="password" id="password-input" placeholder="Mật khẩu" required>
             <button type="submit">Đăng nhập</button>
         </form>
@@ -162,6 +186,7 @@
 
     <div id="chat-container">
         <div id="chat-header">
+            <div id="online-status">...</div>
             <button id="clear-chat-button">Xóa tin nhắn</button>
         </div>
         <div id="chat-box"></div>
@@ -198,8 +223,12 @@
         var messageInput = document.getElementById('message-input');
         var sendButton = document.getElementById('send-button');
         var clearChatButton = document.getElementById('clear-chat-button');
+        var onlineStatusDiv = document.getElementById('online-status');
 
         var currentUser = null;
+        var user1Id = "AQQ9TjfkjZacKeBT8NdwlGUio2L2"; // UID của tuanh@gmail.com
+        var user2Id = "sbx22l48QxSXrwd996hcWUashMw1"; // UID của grinfs@gmail.com
+        var partnerId = null;
 
         loginForm.addEventListener('submit', function(e) {
             e.preventDefault();
@@ -216,7 +245,11 @@
                 currentUser = user;
                 loginContainer.style.display = 'none';
                 chatContainer.style.display = 'flex';
+                
+                partnerId = (currentUser.uid === user1Id) ? user2Id : user1Id;
+                
                 loadMessages();
+                setupOnlineStatus();
             } else {
                 currentUser = null;
                 loginContainer.style.display = 'flex';
@@ -273,6 +306,23 @@
                         chatBox.scrollTop = chatBox.scrollHeight;
                     }
                 });
+            });
+        }
+        
+        function setupOnlineStatus() {
+            var userStatusRef = db.collection('user_presence').doc(currentUser.uid);
+            userStatusRef.set({
+                status: 'online',
+                last_seen: firebase.firestore.FieldValue.serverTimestamp()
+            });
+
+            var partnerStatusRef = db.collection('user_presence').doc(partnerId);
+            partnerStatusRef.onSnapshot(function(doc) {
+                if (doc.exists && doc.data().status === 'online') {
+                    onlineStatusDiv.innerHTML = '<span class="online-dot"></span> Đang hoạt động';
+                } else {
+                    onlineStatusDiv.innerHTML = '<span class="offline-dot"></span> Ngoại tuyến';
+                }
             });
         }
     </script>

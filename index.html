@@ -120,6 +120,46 @@
             display: flex;
             flex-direction: column;
         }
+        
+        /* CSS MỚI CHO AVATAR */
+        .message-container {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 10px;
+            gap: 10px;
+        }
+        .message-container.sent {
+            justify-content: flex-end;
+        }
+        .message-container.received {
+            justify-content: flex-start;
+        }
+        
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .message-bubble {
+            max-width: 70%;
+            padding: 10px 15px;
+            border-radius: 20px;
+            word-wrap: break-word;
+        }
+
+        .sent .message-bubble {
+            background-color: #007bff;
+            color: white;
+            border-bottom-right-radius: 5px;
+        }
+
+        .received .message-bubble {
+            background-color: #e4e6eb;
+            color: #333;
+            border-bottom-left-radius: 5px;
+        }
 
         #input-container {
             display: flex;
@@ -151,26 +191,6 @@
 
         #send-button:hover {
             background-color: #0056b3;
-        }
-
-        .message-bubble {
-            max-width: 70%;
-            padding: 10px 15px;
-            border-radius: 20px;
-            margin-bottom: 10px;
-            word-wrap: break-word;
-        }
-
-        .sent {
-            align-self: flex-end;
-            background-color: #007bff;
-            color: white;
-        }
-
-        .received {
-            align-self: flex-start;
-            background-color: #e4e6eb;
-            color: #333;
         }
     </style>
 </head>
@@ -233,6 +253,12 @@
         var user2Id = "sbx22l48QxSXrwd996hcWUashMw1"; // UID của grinfs@gmail.com
         var partnerId = null;
 
+        // ĐỐI TƯỢNG MỚI LƯU TRỮ URL AVATAR
+        var avatars = {
+            "AQQ9TjfkjZacKeBT8NdwlGUio2L2": "https://cdn-icons-png.flaticon.com/512/147/147142.png", // Thay bằng URL avatar của bạn
+            "sbx22l48QxSXrwd996hcWUashMw1": "https://cdn-icons-png.flaticon.com/512/147/147144.png" // Thay bằng URL avatar của bạn gái
+        };
+
         loginForm.addEventListener('submit', function(e) {
             e.preventDefault();
             var email = emailInput.value;
@@ -251,9 +277,6 @@
                 
                 partnerId = (currentUser.uid === user1Id) ? user2Id : user1Id;
                 
-                console.log("Đã đăng nhập thành công. Current User ID:", currentUser.uid);
-                console.log("Partner ID:", partnerId);
-
                 loadMessages();
                 setupOnlineStatus();
             } else {
@@ -270,6 +293,7 @@
                 dbFirestore.collection("messages").add({
                     text: messageText,
                     senderId: currentUser.uid,
+                    avatar: avatars[currentUser.uid], // Gửi kèm URL avatar
                     timestamp: firebase.firestore.FieldValue.serverTimestamp()
                 });
                 messageInput.value = "";
@@ -300,15 +324,29 @@
                 snapshot.docChanges().forEach(function(change) {
                     if (change.type === "added") {
                         var msg = change.doc.data();
+                        
+                        var messageContainer = document.createElement('div');
+                        messageContainer.classList.add('message-container');
+
                         var messageElement = document.createElement('div');
                         messageElement.classList.add('message-bubble');
+                        
+                        var avatarElement = document.createElement('img');
+                        avatarElement.classList.add('avatar');
+                        avatarElement.src = msg.avatar;
+
                         if (msg.senderId === currentUser.uid) {
-                            messageElement.classList.add('sent');
+                            messageContainer.classList.add('sent');
+                            messageContainer.appendChild(messageElement);
+                            messageContainer.appendChild(avatarElement);
                         } else {
-                            messageElement.classList.add('received');
+                            messageContainer.classList.add('received');
+                            messageContainer.appendChild(avatarElement);
+                            messageContainer.appendChild(messageElement);
                         }
+                        
                         messageElement.textContent = msg.text;
-                        chatBox.appendChild(messageElement);
+                        chatBox.appendChild(messageContainer);
                         chatBox.scrollTop = chatBox.scrollHeight;
                     }
                 });
@@ -325,10 +363,6 @@
             partnerStatusRef.on('value', (snapshot) => {
                 const partnerStatus = snapshot.val();
                 
-                // Log để kiểm tra chính xác dữ liệu từ server
-                console.log("Dữ liệu trạng thái nhận được:", partnerStatus);
-                console.log("Kiểu dữ liệu:", typeof partnerStatus);
-
                 if (partnerStatus && partnerStatus.online) {
                     onlineStatusDiv.innerHTML = '<span class="online-dot"></span> Đang hoạt động';
                 } else {

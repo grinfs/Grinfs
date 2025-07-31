@@ -329,22 +329,20 @@
         last_changed: firebase.database.ServerValue.TIMESTAMP
     };
 
-    dbRealtime.ref('.info/connected').on('value', function(snapshot) {
-        if (snapshot.val() === false) {
-            return;
-        }
+    function setupOnlineStatus() {
+    const userStatusRef = dbRealtime.ref('status/' + currentUser.uid);
+    const partnerStatusRef = dbRealtime.ref('status/' + partnerId);
 
-        userStatusDatabaseRef
-            .onDisconnect()
-            .set(isOfflineForDatabase)
-            .then(function() {
-                userStatusDatabaseRef.set(isOnlineForDatabase);
-                console.log("✅ Đã set trạng thái online cho", currentUser.uid);
-            });
+    // Khi mở web
+    userStatusRef.set({ online: true });
+
+    // Khi đóng tab hoặc reload
+    window.addEventListener('beforeunload', function () {
+        userStatusRef.set({ online: false });
     });
 
-    // LẮNG NGHE TRẠNG THÁI partnerId
-    partnerStatusDatabaseRef.on('value', function(snapshot) {
+    // Theo dõi trạng thái của partner
+    partnerStatusRef.on('value', function(snapshot) {
         const status = snapshot.val();
         console.log("👀 Trạng thái partner nhận được:", status);
 
@@ -353,11 +351,8 @@
         } else {
             onlineStatusDiv.innerHTML = '<span class="offline-dot"></span> Ngoại tuyến';
         }
-    }, function(error) {
-        console.error("❌ Lỗi khi theo dõi trạng thái partner:", error);
     });
 }
-
     </script>
 </body>
 </html>

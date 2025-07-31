@@ -70,8 +70,9 @@
             background-color: #007bff;
             color: white;
             padding: 15px;
-            font-size: 1.2em;
-            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             position: relative;
         }
         
@@ -161,7 +162,6 @@
 
     <div id="chat-container">
         <div id="chat-header">
-            Chat riêng tư
             <button id="clear-chat-button">Xóa tin nhắn</button>
         </div>
         <div id="chat-box"></div>
@@ -197,11 +197,10 @@
         var chatBox = document.getElementById('chat-box');
         var messageInput = document.getElementById('message-input');
         var sendButton = document.getElementById('send-button');
-        var clearChatButton = document.getElementById('clear-chat-button'); // Nút xóa tin nhắn
+        var clearChatButton = document.getElementById('clear-chat-button');
 
         var currentUser = null;
 
-        // Xử lý đăng nhập
         loginForm.addEventListener('submit', function(e) {
             e.preventDefault();
             var email = emailInput.value;
@@ -212,7 +211,6 @@
                 });
         });
 
-        // Kiểm tra trạng thái đăng nhập
         auth.onAuthStateChanged(function(user) {
             if (user) {
                 currentUser = user;
@@ -226,7 +224,6 @@
             }
         });
 
-        // Gửi tin nhắn mới
         function sendMessage() {
             if (!currentUser) return;
             var messageText = messageInput.value.trim();
@@ -242,25 +239,22 @@
         
         sendButton.addEventListener('click', sendMessage);
 
-        // Thêm tính năng bấm Enter để gửi
         messageInput.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 sendMessage();
             }
         });
 
-        // Xóa toàn bộ tin nhắn
         clearChatButton.addEventListener('click', function() {
             if (confirm("Bạn có chắc chắn muốn xóa toàn bộ tin nhắn không?")) {
                 db.collection("messages").get().then(function(querySnapshot) {
                     querySnapshot.forEach(function(doc) {
                         doc.ref.delete();
                     });
-                    chatBox.innerHTML = ''; // Xóa tin nhắn trên giao diện
+                    chatBox.innerHTML = '';
                 });
             }
         });
-
 
         function loadMessages() {
             db.collection("messages").orderBy("timestamp").onSnapshot(function(snapshot) {

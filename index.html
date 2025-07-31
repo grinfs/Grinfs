@@ -1,329 +1,41 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Chat Riêng Tư</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f0f2f5;
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-        #login-container {
-            width: 100%;
-            max-width: 400px;
-            padding: 20px;
-            background-color: #fff;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-            text-align: center;
-        }
-        #login-container h1 { color: #007bff; }
-        #login-form input {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 10px;
-            border: 1px solid #ddd;
-            border-radius: 20px;
-            box-sizing: border-box;
-            font-size: 1em;
-        }
-        #login-form button {
-            width: 100%;
-            padding: 10px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 1em;
-            transition: background-color 0.2s;
-        }
-        #login-form button:hover { background-color: #0056b3; }
-        #chat-container {
-            width: 100%;
-            max-width: 600px;
-            height: 80vh;
-            display: flex;
-            flex-direction: column;
-            background-color: #fff;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-            overflow: hidden;
-            display: none;
-        }
-        #chat-header {
-            background-color: #007bff;
-            color: white;
-            padding: 15px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: relative;
-        }
-        #clear-chat-button {
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            color: white;
-            cursor: pointer;
-            font-size: 1em;
-            font-weight: bold;
-        }
-        #online-status {
-            position: absolute;
-            left: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 0.9em;
-        }
-        .online-dot, .offline-dot {
-            height: 10px;
-            width: 10px;
-            border-radius: 50%;
-            display: inline-block;
-            margin-right: 5px;
-        }
-        .online-dot { background-color: #00ff00; }
-        .offline-dot { background-color: #ccc; }
-        #chat-box {
-            flex-grow: 1;
-            padding: 20px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-        }
-        #input-container {
-            display: flex;
-            padding: 10px;
-            border-top: 1px solid #ddd;
-            background-color: #f9f9f9;
-        }
-        #message-input {
-            flex-grow: 1;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 20px;
-            margin-right: 10px;
-            outline: none;
-            font-size: 1em;
-        }
-        #send-button {
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 1em;
-            transition: background-color 0.2s;
-        }
-        #send-button:hover { background-color: #0056b3; }
-        .message-bubble {
-            max-width: 70%;
-            padding: 10px 15px;
-            border-radius: 20px;
-            margin-bottom: 10px;
-            word-wrap: break-word;
-        }
-        .sent {
-            align-self: flex-end;
-            background-color: #007bff;
-            color: white;
-        }
-        .received {
-            align-self: flex-start;
-            background-color: #e4e6eb;
-            color: #333;
-        }
-    </style>
-</head>
-<body>
-    <div id="login-container">
-        <h1>Đăng nhập</h1>
-        <form id="login-form">
-            <input type="email" id="email-input" placeholder="Tên đăng nhập" required>
-            <input type="password" id="password-input" placeholder="Mật khẩu" required>
-            <button type="submit">Đăng nhập</button>
-        </form>
-    </div>
+    <title>Chat riêng tư</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
 
-    <div id="chat-container">
-        <div id="chat-header">
-            <div id="online-status">...</div>
-            <button id="clear-chat-button">Xóa tin nhắn</button>
-        </div>
-        <div id="chat-box"></div>
-        <div id="input-container">
-            <input type="text" id="message-input" placeholder="Nhập tin nhắn của bạn...">
-            <button id="send-button">Gửi</button>
-        </div>
-    </div>
+        #login-container {
+            width: 100%;
+            max-width: 400px;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            text-align: center;
+        }
 
-    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
+        #login-container h1 {
+            color: #007bff;
+        }
 
-    <script>
-        var firebaseConfig = {
-            apiKey: "AIzaSyC0VFKSVNkdamO1-vVWtp_J8wusem4pm6I", // Thay bằng API Key của bạn
-            authDomain: "chat-e4c3b.firebaseapp.com",
-            projectId: "chat-e4c3b",
-            storageBucket: "chat-e4c3b.appspot.com",
-            messagingSenderId: "569274547195",
-            appId: "1:569274547195:web:dd2b0629d31cc2f9f6695e",
-            databaseURL: "https://chat-e4c3b-default-rtdb.firebaseio.com"
-        };
-        firebase.initializeApp(firebaseConfig);
-        var db = firebase.firestore();
-        var auth = firebase.auth();
-        var rtdb = firebase.database();
+        #login-form input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            box-sizing: border-box;
+            font-size: 1em;
+        }
 
-        var loginContainer = document.getElementById('login-container');
-        var chatContainer = document.getElementById('chat-container');
-        var loginForm = document.getElementById('login-form');
-        var emailInput = document.getElementById('email-input');
-        var passwordInput = document.getElementById('password-input');
-
-        var chatBox = document.getElementById('chat-box');
-        var messageInput = document.getElementById('message-input');
-        var sendButton = document.getElementById('send-button');
-        var clearChatButton = document.getElementById('clear-chat-button');
-        var onlineStatusDiv = document.getElementById('online-status');
-
-        var currentUser = null;
-        var user1Id = "AQQ9TjfkjZacKeBT8NdwlGUio2L2"; // UID của tuanh@gmail.com
-        var user2Id = "sbx22l48QxSXrwd996hcWUashMw1"; // UID của grinfs@gmail.com
-        var partnerId = null;
-        var chatId = null;
-
-        loginForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            var email = emailInput.value;
-            var password = passwordInput.value;
-            auth.signInWithEmailAndPassword(email, password)
-                .catch(function(error) {
-                    alert(error.message);
-                });
-        });
-
-        auth.onAuthStateChanged(function(user) {
-            if (user) {
-                currentUser = user;
-                loginContainer.style.display = 'none';
-                chatContainer.style.display = 'flex';
-                
-                partnerId = (currentUser.uid === user1Id) ? user2Id : user1Id;
-                chatId = [currentUser.uid, partnerId].sort().join('_');
-                
-                loadMessages();
-                setupOnlineStatus();
-            } else {
-                currentUser = null;
-                loginContainer.style.display = 'flex';
-                chatContainer.style.display = 'none';
-            }
-        });
-
-        function sendMessage() {
-            if (!currentUser || !chatId) return;
-            var messageText = messageInput.value.trim();
-            if (messageText !== "") {
-                db.collection("private_chats").doc(chatId).collection("messages").add({
-                    text: messageText,
-                    senderId: currentUser.uid,
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                });
-                messageInput.value = "";
-            }
-        }
-        
-        sendButton.addEventListener('click', sendMessage);
-        messageInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                sendMessage();
-            }
-        });
-
-        clearChatButton.addEventListener('click', function() {
-            if (!chatId) return;
-            if (confirm("Bạn có chắc chắn muốn xóa toàn bộ tin nhắn trong cuộc trò chuyện này không?")) {
-                var messagesToDelete = db.collection("private_chats").doc(chatId).collection("messages");
-                messagesToDelete.get().then(function(querySnapshot) {
-                    var batch = db.batch();
-                    querySnapshot.forEach(function(doc) {
-                        batch.delete(doc.ref);
-                    });
-                    return batch.commit();
-                }).then(function() {
-                    chatBox.innerHTML = '';
-                });
-            }
-        });
-
-        function loadMessages() {
-            if (!chatId) return;
-            chatBox.innerHTML = '';
-            db.collection("private_chats").doc(chatId).collection("messages").orderBy("timestamp")
-              .onSnapshot(function(snapshot) {
-                snapshot.docChanges().forEach(function(change) {
-                    if (change.type === "added") {
-                        var msg = change.doc.data();
-                        var messageElement = document.createElement('div');
-                        messageElement.classList.add('message-bubble');
-                        if (msg.senderId === currentUser.uid) {
-                            messageElement.classList.add('sent');
-                        } else {
-                            messageElement.classList.add('received');
-                        }
-                        messageElement.textContent = msg.text;
-                        chatBox.appendChild(messageElement);
-                        chatBox.scrollTop = chatBox.scrollHeight;
-                    }
-                });
-            });
-        }
-        
-        function setupOnlineStatus() {
-            if (!currentUser || !partnerId) return;
-
-            var userStatusDatabaseRef = rtdb.ref('/status/' + currentUser.uid);
-            var partnerStatusDatabaseRef = rtdb.ref('/status/' + partnerId);
-
-            var isOfflineForDatabase = {
-                state: 'offline',
-                last_changed: firebase.database.ServerValue.TIMESTAMP,
-            };
-
-            var isOnlineForDatabase = {
-                state: 'online',
-                last_changed: firebase.database.ServerValue.TIMESTAMP,
-            };
-            
-            rtdb.ref('.info/connected').on('value', function(snapshot) {
-                if (snapshot.val() === false) {
-                    return;
-                }
-                userStatusDatabaseRef.onDisconnect().set(isOfflineForDatabase).then(function() {
-                    userStatusDatabaseRef.set(isOnlineForDatabase);
-                });
-            });
-            
-            partnerStatusDatabaseRef.on('value', function(snapshot) {
-                if (snapshot.val() && snapshot.val().state === 'online') {
-                    onlineStatusDiv.innerHTML = '<span class="online-dot"></span> Đang hoạt động';
-                } else {
-                    onlineStatusDiv.innerHTML = '<span class="offline-dot"></span> Ngoại tuyến';
-                }
-            });
-        }
-    </script>
-</body>
-</html>
+        #login-form button {
+            width: 100%;

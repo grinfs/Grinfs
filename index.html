@@ -315,25 +315,6 @@
             });
         }
         
-                function setupOnlineStatus() {
-            var userStatusRef = dbRealtime.ref('status/' + currentUser.uid);
-            var partnerStatusRef = dbRealtime.ref('status/' + partnerId);
-
-            userStatusRef.set({ online: true });
-            userStatusRef.onDisconnect().set({ online: false });
-
-            // Thêm một chút delay trước khi lắng nghe trạng thái
-            setTimeout(() => {
-                partnerStatusRef.on('value', (snapshot) => {
-                    const partnerStatus = snapshot.val();
-                    console.log("Dữ liệu trạng thái nhận được:", partnerStatus); // Log để kiểm tra
-                    if (partnerStatus && partnerStatus.online) {
-                        onlineStatusDiv.innerHTML = '<span class="online-dot"></span> Đang hoạt động';
-                    } else {
-                        onlineStatusDiv.innerHTML = '<span class="offline-dot"></span> Ngoại tuyến';
-                    }
-                });
-            }, 1000); // Đợi 1 giây để đảm bảo dữ liệu đã được ghi
         }
     </script>
 </body>

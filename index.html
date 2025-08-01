@@ -68,7 +68,27 @@
         #sticker-panel img:hover { transform: scale(1.1); }
         .message-bubble.sticker-message { background-color: transparent; padding: 0; }
         .sticker-message img { max-width: 120px; height: auto; }
-
+        /* --- PHẦN NỀN HAI BÊN --- */
+        .background-image {
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            width: 50%; /* Điều chỉnh độ rộng của vùng nền */
+            z-index: 0;
+            background-size: cover;
+            background-position: center;
+            display: none; /* Ẩn mặc định */
+        }
+        #background-left {
+            left: 0;
+            /* THAY URL ẢNH CỦA BẠN VÀO ĐÂY */
+            background-image: url('https://preview.redd.it/varesa-in-game-pictures-compilation-by-%E3%81%95%E3%81%8F%E3%81%B1%E3%81%91-%E0%A1%87-%E5%8E%9F%E7%A5%9E-aka-on-v0-d8qmc6ckquse1.png?width=1080&crop=smart&auto=webp&s=5681c629a0a5bb812fccacdd845c63bca374b401');
+        }
+        #background-right {
+            right: 0;
+            /* THAY URL ẢNH CỦA BẠN VÀO ĐÂY */
+            background-image: url('https://i.redd.it/wl9x9wxt6s7e1.png');
+        }
         /* --- CSS CHO RESPONSIVE TRÊN ĐIỆN THOẠI --- */
         @media (max-width: 768px) {
             body {

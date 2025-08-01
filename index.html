@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Chat riêng tư</title>
+    <title>Chat App</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
@@ -14,180 +14,61 @@
             --text-light: #fff;
             --font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-
-        body {
-            font-family: var(--font-family);
-            background-color: var(--body-bg);
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-
-        #login-container {
-            width: 100%;
-            max-width: 400px;
-            padding: 20px;
-            background-color: #fff;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-            border-radius: 12px;
-            text-align: center;
-        }
-
+        body { font-family: var(--font-family); background-color: #f0f2f5; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        
+        /* Giao diện Đăng nhập */
+        #login-container { width: 100%; max-width: 400px; padding: 20px; background-color: #fff; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08); border-radius: 12px; text-align: center; }
         #login-container h1 { color: #0084ff; font-weight: 600; }
         #login-form input { width: 100%; padding: 12px 20px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 25px; box-sizing: border-box; font-size: 1em; font-family: var(--font-family); }
         #login-form button { width: 100%; padding: 12px; background-color: var(--sent-bg); color: white; border: none; border-radius: 25px; cursor: pointer; font-size: 1em; font-weight: 500; transition: background-color 0.2s; font-family: var(--font-family); }
         #login-form button:hover { background-color: #0073e0; }
-        
+
+        /* Giao diện Chat */
         #chat-container {
             width: 100%;
             max-width: 650px;
             height: 85vh;
-            display: flex;
+            display: none; /* Ẩn ban đầu, chỉ hiện sau khi đăng nhập */
             flex-direction: column;
             background-color: #fff;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
             border-radius: 16px;
             overflow: hidden;
-            display: none;
             border: 1px solid #ddd;
         }
-
-        #chat-header {
-            background-color: #fff;
-            color: var(--text-dark);
-            padding: 10px 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: relative;
-            border-bottom: 1px solid #e9e9e9;
-            font-weight: 600;
-        }
-        
+        #chat-header { background-color: #fff; color: var(--text-dark); padding: 10px 20px; display: flex; justify-content: center; align-items: center; position: relative; border-bottom: 1px solid #e9e9e9; font-weight: 600; }
         #clear-chat-button { position: absolute; right: 20px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #aaa; cursor: pointer; font-size: 0.9em; font-weight: 500; transition: color 0.2s; }
         #clear-chat-button:hover { color: #f44336; }
-        
         #online-status { position: absolute; left: 20px; top: 50%; transform: translateY(-50%); font-size: 0.9em; font-weight: 500; display: flex; align-items: center; }
         .online-dot, .offline-dot { height: 10px; width: 10px; border-radius: 50%; display: inline-block; margin-right: 8px; }
         .online-dot { background-color: #4caf50; }
         .offline-dot { background-color: #ccc; }
-
-        #chat-box {
-            flex-grow: 1;
-            padding: 10px 20px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        #input-container {
-            display: flex;
-            align-items: center;
-            padding: 12px 20px;
-            border-top: 1px solid #e9e9e9;
-            background-color: #fff;
-        }
-
-        #message-input {
-            flex-grow: 1;
-            padding: 10px 20px;
-            border: none;
-            background-color: #f0f2f5;
-            border-radius: 20px;
-            margin-right: 12px;
-            outline: none;
-            font-size: 1em;
-            font-family: var(--font-family);
-        }
-
-        #send-button {
-            flex-shrink: 0;
-            width: 40px;
-            height: 40px;
-            background-color: transparent;
-            color: var(--sent-bg);
-            border: none;
-            border-radius: 50%;
-            cursor: pointer;
-            transition: background-color 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        #send-button:hover { background-color: #f0f2f5; }
-        #send-button svg { width: 24px; height: 24px; }
-        
+        #chat-box { flex-grow: 1; padding: 10px 20px; overflow-y: auto; display: flex; flex-direction: column; }
+        #input-container { display: flex; align-items: center; padding: 12px; border-top: 1px solid #e9e9e9; background-color: #fff; position: relative; }
+        #message-input { flex-grow: 1; padding: 10px 20px; border: none; background-color: #f0f2f5; border-radius: 20px; margin: 0 8px; outline: none; font-size: 1em; font-family: var(--font-family); }
+        .icon-button { flex-shrink: 0; width: 40px; height: 40px; background-color: transparent; color: var(--sent-bg); border: none; border-radius: 50%; cursor: pointer; transition: background-color 0.2s; display: flex; align-items: center; justify-content: center; }
+        .icon-button:hover { background-color: #f0f2f5; }
+        .icon-button svg { width: 24px; height: 24px; }
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        .message-wrapper {
-            display: flex;
-            align-items: flex-end;
-            margin-bottom: 10px;
-            max-width: 70%;
-            animation: fadeInUp 0.4s ease-out;
-        }
-
-        .message-wrapper.grouped {
-            margin-bottom: 2px;
-        }
-
-        .avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            flex-shrink: 0;
-        }
-
-        /* --- CÁC THAY ĐỔI CSS --- */
+        .message-wrapper { display: flex; align-items: flex-end; margin-bottom: 10px; max-width: 70%; animation: fadeInUp 0.4s ease-out; }
+        .message-wrapper.grouped { margin-bottom: 2px; }
+        .avatar { width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0; }
+        .message-wrapper.sent { align-self: flex-end; flex-direction: row-reverse; }
+        .message-wrapper.sent .avatar { margin-left: 12px; }
+        .message-wrapper.received { align-self: flex-start; }
+        .message-wrapper.received .avatar { margin-right: 12px; }
+        .message-wrapper.hide-avatar .avatar { visibility: hidden; }
+        .message-bubble { max-width: 100%; padding: 10px 15px; border-radius: 18px; word-wrap: break-word; line-height: 1.4; }
+        .sent .message-bubble { background-color: var(--sent-bg); color: var(--text-light); }
+        .received .message-bubble { background-color: var(--received-bg); color: var(--text-dark); }
         
-        /* Tin nhắn gửi đi (bên phải) */
-        .message-wrapper.sent {
-            align-self: flex-end;
-            flex-direction: row-reverse; /* Đảo ngược thứ tự để avatar bên phải */
-        }
-        
-        /* THÊM: Căn lề cho avatar của tin nhắn gửi đi */
-        .message-wrapper.sent .avatar {
-            margin-left: 12px;
-        }
-
-        /* BỎ: Quy tắc ẩn avatar của tin nhắn gửi đi đã bị xóa */
-        
-        /* Tin nhắn nhận được (bên trái) */
-        .message-wrapper.received {
-            align-self: flex-start;
-        }
-
-        /* Căn lề cho avatar của tin nhắn nhận được */
-        .message-wrapper.received .avatar {
-            margin-right: 12px;
-        }
-        
-        /* Quy tắc này giờ áp dụng cho cả hai bên */
-        .message-wrapper.hide-avatar .avatar {
-            visibility: hidden;
-        }
-        
-        .message-bubble {
-            max-width: 100%;
-            padding: 10px 15px;
-            border-radius: 18px;
-            word-wrap: break-word;
-            line-height: 1.4;
-        }
-
-        .sent .message-bubble {
-            background-color: var(--sent-bg);
-            color: var(--text-light);
-        }
-
-        .received .message-bubble {
-            background-color: var(--received-bg);
-            color: var(--text-dark);
-        }
-
+        /* CSS CHO STICKER */
+        #sticker-panel { position: absolute; bottom: 70px; left: 10px; background: #fff; border: 1px solid #ddd; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); padding: 10px; display: none; grid-template-columns: repeat(4, 1fr); gap: 10px; max-width: 300px; z-index: 10; }
+        #sticker-panel.show { display: grid; }
+        #sticker-panel img { width: 60px; height: 60px; cursor: pointer; transition: transform 0.2s; }
+        #sticker-panel img:hover { transform: scale(1.1); }
+        .message-bubble.sticker-message { background-color: transparent; padding: 0; }
+        .sticker-message img { max-width: 120px; height: auto; }
     </style>
 </head>
 <body>
@@ -208,113 +89,194 @@
         </div>
         <div id="chat-box"></div>
         <div id="input-container">
+            <button id="sticker-btn" class="icon-button">
+                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M21.2929 13.7071C21.4804 13.9189 21.5858 14.1831 21.5858 14.4586V18.9997C21.5858 19.5519 21.1377 19.9997 20.5858 19.9997H5.00002C4.44774 19.9997 4.00002 19.5519 4.00002 18.9997V5.00002C4.00002 4.44774 4.44774 4.00002 5.00002 4.00002H9.52789C9.80338 4.00002 10.0676 4.10538 10.2794 4.29291L13.7071 7.72063C13.9189 7.93245 14.1831 8.03781 14.4586 8.03781H18.9997C19.5519 8.03781 19.9997 8.48553 19.9997 9.03781V12.2929L21.2929 13.7071ZM19.9997 13.7071V9.03781H14.4586C13.9063 8.03781 13.4586 8.48553 13.4586 9.03781V12.7071L19.9997 13.7071Z"></path></svg>
+            </button>
             <input type="text" id="message-input" placeholder="Aa">
-            <button id="send-button">
+            <button id="send-button" class="icon-button">
                 <svg fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path>
                 </svg>
             </button>
+            <div id="sticker-panel"></div>
         </div>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
-
+    
     <script>
-        var firebaseConfig = {
-            apiKey: "AIzaSyC0VFKSVNkdamO1-vVWtp_J8wusem4pm6I",
-            authDomain: "chat-e4c3b.firebaseapp.com",
-            projectId: "chat-e4c3b",
-            storageBucket: "chat-e4c3b.appspot.com",
-            messagingSenderId: "569274547195",
-            appId: "1:569274547195:web:dd2b0629d31cc2f9f6695e",
-            databaseURL: "https://chat-e4c3b-default-rtdb.asia-southeast1.firebasedatabase.app"
-        };
-        firebase.initializeApp(firebaseConfig);
-        var dbFirestore = firebase.firestore();
-        var dbRealtime = firebase.database();
-        var auth = firebase.auth();
-        var loginContainer = document.getElementById('login-container');
-        var chatContainer = document.getElementById('chat-container');
-        var loginForm = document.getElementById('login-form');
-        var emailInput = document.getElementById('email-input');
-        var passwordInput = document.getElementById('password-input');
-        var chatBox = document.getElementById('chat-box');
-        var messageInput = document.getElementById('message-input');
-        var sendButton = document.getElementById('send-button');
-        var clearChatButton = document.getElementById('clear-chat-button');
-        var onlineStatusDiv = document.getElementById('online-status');
-        var currentUser = null;
-        var user1Id = "AQG9TJfjkZacKeBT8NdwlGUio2L2"; // UID của tuanh@gmail.com
-        var user2Id = "sbx22l48QxSXrwd996hcWUashMw1"; // UID của grinfs@gmail.com
-        var partnerId = null;
-        var avatarUrls = {
-            "AQG9TJfjkZacKeBT8NdwlGUio2L2": "https://i.pinimg.com/736x/63/bc/bb/63bcbb4ee332aaa9b7271d4ff12cb0b5.jpg",
-            "sbx22l48QxSXrwd996hcWUashMw1": "https://i.pinimg.com/736x/0b/c0/2c/0bc02ca7218ee73db799d09518f07363.jpg"
-        };
-        
-        loginForm.addEventListener('submit', function(e) { e.preventDefault(); auth.signInWithEmailAndPassword(emailInput.value, passwordInput.value).catch(function(error) { alert(error.message); }); });
-        auth.onAuthStateChanged(function(user) { if (user) { currentUser = user; loginContainer.style.display = 'none'; chatContainer.style.display = 'flex'; partnerId = (currentUser.uid === user1Id) ? user2Id : user1Id; loadMessages(); setupOnlineStatus(); } else { currentUser = null; loginContainer.style.display = 'block'; chatContainer.style.display = 'none'; } });
-        function sendMessage() { if (!currentUser) return; var messageText = messageInput.value.trim(); if (messageText !== "") { dbFirestore.collection("messages").add({ text: messageText, senderId: currentUser.uid, timestamp: firebase.firestore.FieldValue.serverTimestamp() }); messageInput.value = ""; } }
-        sendButton.addEventListener('click', sendMessage);
-        messageInput.addEventListener('keypress', function(e) { if (e.key === 'Enter') { e.preventDefault(); sendMessage(); } });
-        clearChatButton.addEventListener('click', function() { if (confirm("Bạn có chắc chắn muốn xóa toàn bộ tin nhắn không?")) { dbFirestore.collection("messages").get().then(function(querySnapshot) { querySnapshot.forEach(function(doc) { doc.ref.delete(); }); }); } });
-        function setupOnlineStatus() { var userStatusRef = dbRealtime.ref('status/' + currentUser.uid); var partnerStatusRef = dbRealtime.ref('status/' + partnerId); userStatusRef.set({ online: true }); userStatusRef.onDisconnect().set({ online: false }); partnerStatusRef.on('value', (snapshot) => { const partnerStatus = snapshot.val(); if (partnerStatus && partnerStatus.online) { onlineStatusDiv.innerHTML = '<span class="online-dot"></span> Đang hoạt động'; } else { onlineStatusDiv.innerHTML = '<span class="offline-dot"></span> Ngoại tuyến'; } }); }
+        document.addEventListener('DOMContentLoaded', function () {
+            // --- KHỞI TẠO FIREBASE ---
+            const firebaseConfig = {
+                apiKey: "AIzaSyC0VFKSVNkdamO1-vVWtp_J8wusem4pm6I",
+                authDomain: "chat-e4c3b.firebaseapp.com",
+                projectId: "chat-e4c3b",
+                storageBucket: "chat-e4c3b.appspot.com",
+                messagingSenderId: "569274547195",
+                appId: "1:569274547195:web:dd2b0629d31cc2f9f6695e",
+                databaseURL: "https://chat-e4c3b-default-rtdb.asia-southeast1.firebasedatabase.app"
+            };
+            firebase.initializeApp(firebaseConfig);
+            const auth = firebase.auth();
+            const dbFirestore = firebase.firestore();
+            const dbRealtime = firebase.database();
+            
+            // --- LẤY CÁC PHẦN TỬ GIAO DIỆN ---
+            const loginContainer = document.getElementById('login-container');
+            const chatContainer = document.getElementById('chat-container');
+            const loginForm = document.getElementById('login-form');
+            const emailInput = document.getElementById('email-input');
+            const passwordInput = document.getElementById('password-input');
+            const chatBox = document.getElementById('chat-box');
+            const messageInput = document.getElementById('message-input');
+            const sendButton = document.getElementById('send-button');
+            const clearChatButton = document.getElementById('clear-chat-button');
+            const onlineStatusDiv = document.getElementById('online-status');
+            const stickerButton = document.getElementById('sticker-btn');
+            const stickerPanel = document.getElementById('sticker-panel');
 
-        // --- HÀM loadMessages ĐƯỢC CẬP NHẬT ---
-        function loadMessages() {
-            dbFirestore.collection("messages").orderBy("timestamp").onSnapshot(function(snapshot) {
-                chatBox.innerHTML = ''; 
+            // --- BIẾN VÀ DỮ LIỆU ---
+            let currentUser = null;
+            let partnerId = null;
+            const user1Id = "AQG9TJfjkZacKeBT8NdwlGUio2L2";
+            const user2Id = "sbx22l48QxSXrwd996hcWUashMw1";
+            const avatarUrls = {
+                "AQG9TJfjkZacKeBT8NdwlGUio2L2": "https://i.pinimg.com/736x/63/bc/bb/63bcbb4ee332aaa9b7271d4ff12cb0b5.jpg",
+                "sbx22l48QxSXrwd996hcWUashMw1": "https://i.pinimg.com/736x/0b/c0/2c/0bc02ca7218ee73db799d09518f07363.jpg"
+            };
+            const stickerUrls = [
+                'https://media.tenor.com/1G2b_i2bTj4AAAAi/peach-and-goma-peach-goma.gif',
+                'https://media.tenor.com/fJp8b7i_57YAAAAi/peach-and-goma-love.gif',
+                'https://media.tenor.com/GvA-pZ3ML2IAAAAi/peach-and-goma.gif',
+                'https://media.tenor.com/3i1r2p_S4SUAAAAi/peach-goma-phone-peach-and-goma.gif',
+                'https://media.tenor.com/c8f2w1b8V30AAAAi/peach-and-goma-cry.gif',
+                'https://media.tenor.com/D8xYd2q_bJcAAAAi/peach-and-goma-peachgoma.gif',
+                'https://media.tenor.com/WPlPZ7b2M34AAAAi/peach-goma.gif',
+                'https://media.tenor.com/0PggH8y2mC4AAAAi/peach-goma.gif',
+            ];
 
-                let messages = [];
-                snapshot.forEach(doc => {
-                    messages.push({ id: doc.id, ...doc.data() });
-                });
-
-                messages.forEach((msg, index) => {
-                    const prevSender = (index > 0) ? messages[index - 1].senderId : null;
-                    const nextSender = (index < messages.length - 1) ? messages[index + 1].senderId : null;
-                    
-                    const wrapper = document.createElement('div');
-                    wrapper.classList.add('message-wrapper');
-                    
-                    const avatar = document.createElement('img');
-                    avatar.classList.add('avatar');
-                    avatar.src = avatarUrls[msg.senderId] || 'https://i.pravatar.cc/150';
-
-                    const messageBubble = document.createElement('div');
-                    messageBubble.classList.add('message-bubble');
-                    messageBubble.textContent = msg.text;
-                    
-                    wrapper.appendChild(avatar);
-                    wrapper.appendChild(messageBubble);
-
-                    // Xử lý logic hiển thị
-                    if (msg.senderId === currentUser.uid) {
-                        wrapper.classList.add('sent');
-                    } else {
-                        wrapper.classList.add('received');
-                    }
-
-                    // --- LOGIC MỚI: Áp dụng cho cả hai bên ---
-                    // Nếu tin nhắn tiếp theo vẫn của người này, ẩn avatar của tin hiện tại
-                    if (msg.senderId === nextSender) {
-                        wrapper.classList.add('hide-avatar');
-                    }
-
-                    // Nếu tin nhắn này của cùng người gửi với tin nhắn trước, gom nhóm chúng lại
-                    if (msg.senderId === prevSender) {
-                        wrapper.classList.add('grouped');
-                    }
-                    
-                    chatBox.appendChild(wrapper);
-                });
-
-                chatBox.scrollTop = chatBox.scrollHeight;
+            // --- LOGIC XỬ LÝ ĐĂNG NHẬP ---
+            loginForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                auth.signInWithEmailAndPassword(emailInput.value, passwordInput.value).catch((error) => alert(error.message));
             });
-        }
+
+            auth.onAuthStateChanged((user) => {
+                if (user) {
+                    // Đăng nhập thành công
+                    currentUser = user;
+                    loginContainer.style.display = 'none';
+                    chatContainer.style.display = 'flex';
+                    partnerId = (currentUser.uid === user1Id) ? user2Id : user1Id;
+                    loadMessages();
+                    setupOnlineStatus();
+                } else {
+                    // Đã đăng xuất
+                    currentUser = null;
+                    loginContainer.style.display = 'block';
+                    chatContainer.style.display = 'none';
+                }
+            });
+
+            // --- CÁC HÀM CHỨC NĂNG ---
+            function sendSticker(url) { /* ... */ } // Sẽ định nghĩa bên dưới
+            function sendMessage() { /* ... */ }
+            function loadMessages() { /* ... */ }
+            function setupOnlineStatus() { /* ... */ }
+
+            // Định nghĩa chi tiết các hàm
+            sendSticker = function(url) {
+                if (!currentUser) return;
+                dbFirestore.collection("messages").add({
+                    type: 'sticker',
+                    stickerUrl: url,
+                    senderId: currentUser.uid,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                stickerPanel.classList.remove('show');
+            }
+
+            sendMessage = function() {
+                if (!currentUser) return;
+                const messageText = messageInput.value.trim();
+                if (messageText !== "") {
+                    dbFirestore.collection("messages").add({
+                        type: 'text',
+                        text: messageText,
+                        senderId: currentUser.uid,
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    messageInput.value = "";
+                }
+            }
+
+            loadMessages = function() {
+                dbFirestore.collection("messages").orderBy("timestamp").onSnapshot((snapshot) => {
+                    chatBox.innerHTML = '';
+                    let messages = [];
+                    snapshot.forEach(doc => messages.push({ id: doc.id, ...doc.data() }));
+                    messages.forEach((msg, index) => {
+                        const prevSender = (index > 0) ? messages[index - 1].senderId : null;
+                        const nextSender = (index < messages.length - 1) ? messages[index + 1].senderId : null;
+                        const wrapper = document.createElement('div');
+                        wrapper.classList.add('message-wrapper');
+                        const avatar = document.createElement('img');
+                        avatar.classList.add('avatar');
+                        avatar.src = avatarUrls[msg.senderId] || 'https://i.pravatar.cc/150';
+                        const messageBubble = document.createElement('div');
+                        messageBubble.classList.add('message-bubble');
+                        if (msg.type === 'sticker' && msg.stickerUrl) {
+                            messageBubble.classList.add('sticker-message');
+                            const stickerImg = document.createElement('img');
+                            stickerImg.src = msg.stickerUrl;
+                            messageBubble.appendChild(stickerImg);
+                        } else {
+                            messageBubble.textContent = msg.text;
+                        }
+                        wrapper.appendChild(avatar);
+                        wrapper.appendChild(messageBubble);
+                        if (msg.senderId === currentUser.uid) { wrapper.classList.add('sent'); } else { wrapper.classList.add('received'); }
+                        if (msg.senderId === nextSender) { wrapper.classList.add('hide-avatar'); }
+                        if (msg.senderId === prevSender) { wrapper.classList.add('grouped'); }
+                        chatBox.appendChild(wrapper);
+                    });
+                    chatBox.scrollTop = chatBox.scrollHeight;
+                });
+            }
+
+            setupOnlineStatus = function() {
+                const userStatusRef = dbRealtime.ref('status/' + currentUser.uid);
+                const partnerStatusRef = dbRealtime.ref('status/' + partnerId);
+                userStatusRef.set({ online: true });
+                userStatusRef.onDisconnect().set({ online: false });
+                partnerStatusRef.on('value', (snapshot) => {
+                    const partnerStatus = snapshot.val();
+                    if (partnerStatus && partnerStatus.online) {
+                        onlineStatusDiv.innerHTML = '<span class="online-dot"></span> Đang hoạt động';
+                    } else {
+                        onlineStatusDiv.innerHTML = '<span class="offline-dot"></span> Ngoại tuyến';
+                    }
+                });
+            }
+
+            // --- GẮN SỰ KIỆN VÀ KHỞI TẠO ---
+            sendButton.addEventListener('click', sendMessage);
+            messageInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') { e.preventDefault(); sendMessage(); } });
+            clearChatButton.addEventListener('click', () => { if (confirm("Bạn có chắc chắn muốn xóa toàn bộ tin nhắn không?")) { dbFirestore.collection("messages").get().then((q) => q.forEach((doc) => doc.ref.delete())); } });
+            
+            // --- LOGIC CHO STICKER PANEL ---
+            stickerUrls.forEach(url => {
+                const stickerImg = document.createElement('img');
+                stickerImg.src = url;
+                stickerImg.addEventListener('click', () => sendSticker(url));
+                stickerPanel.appendChild(stickerImg);
+            });
+            stickerButton.addEventListener('click', (event) => { event.stopPropagation(); stickerPanel.classList.toggle('show'); });
+            document.addEventListener('click', (event) => { if (!stickerPanel.contains(event.target) && event.target !== stickerButton) { stickerPanel.classList.remove('show'); } });
+        });
     </script>
 </body>
 </html>

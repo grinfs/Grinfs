@@ -3,7 +3,6 @@
 <head>
     <title>Chat App</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
@@ -11,63 +10,24 @@
         :root {
             --sent-bg: #0084ff;
             --received-bg: #e4e6eb;
-            --body-bg: #fff;
+            --body-bg: #f0f2f5;
+            --chat-bg: #fff;
             --text-dark: #050505;
             --text-light: #fff;
             --font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        body { font-family: var(--font-family); background-color: #f0f2f5; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; }
-        
-        #login-container { width: 100%; max-width: 400px; padding: 20px; background-color: #fff; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08); border-radius: 12px; text-align: center; }
-        #login-container h1 { color: #0084ff; font-weight: 600; }
-        #login-form input { width: 100%; padding: 12px 20px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 25px; box-sizing: border-box; font-size: 1em; font-family: var(--font-family); }
-        #login-form button { width: 100%; padding: 12px; background-color: var(--sent-bg); color: white; border: none; border-radius: 25px; cursor: pointer; font-size: 1em; font-weight: 500; transition: background-color 0.2s; font-family: var(--font-family); }
-        #login-form button:hover { background-color: #0073e0; }
-
-        #chat-container {
-            width: 100%;
-            max-width: 650px;
-            height: 85vh;
-            display: none;
-            flex-direction: column;
-            background-color: #fff;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-            border-radius: 16px;
-            overflow: hidden;
-            border: 1px solid #ddd;
+        html { box-sizing: border-box; }
+        *, *:before, *:after { box-sizing: inherit; }
+        body {
+            font-family: var(--font-family);
+            background-color: var(--body-bg);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
         }
-        #chat-header { background-color: #fff; color: var(--text-dark); padding: 10px 20px; display: flex; justify-content: center; align-items: center; position: relative; border-bottom: 1px solid #e9e9e9; font-weight: 600; }
-        #clear-chat-button { position: absolute; right: 20px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #aaa; cursor: pointer; font-size: 0.9em; font-weight: 500; transition: color 0.2s; }
-        #clear-chat-button:hover { color: #f44336; }
-        #online-status { position: absolute; left: 20px; top: 50%; transform: translateY(-50%); font-size: 0.9em; font-weight: 500; display: flex; align-items: center; }
-        .online-dot, .offline-dot { height: 10px; width: 10px; border-radius: 50%; display: inline-block; margin-right: 8px; }
-        .online-dot { background-color: #4caf50; }
-        .offline-dot { background-color: #ccc; }
-        #chat-box { flex-grow: 1; padding: 10px 20px; overflow-y: auto; display: flex; flex-direction: column; }
-        #input-container { display: flex; align-items: center; padding: 12px; border-top: 1px solid #e9e9e9; background-color: #fff; position: relative; }
-        #message-input { flex-grow: 1; padding: 10px 20px; border: none; background-color: #f0f2f5; border-radius: 20px; margin: 0 8px; outline: none; font-size: 1em; font-family: var(--font-family); }
-        .icon-button { flex-shrink: 0; width: 40px; height: 40px; background-color: transparent; color: var(--sent-bg); border: none; border-radius: 50%; cursor: pointer; transition: background-color 0.2s; display: flex; align-items: center; justify-content: center; }
-        .icon-button:hover { background-color: #f0f2f5; }
-        .icon-button svg { width: 24px; height: 24px; }
-        @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .message-wrapper { display: flex; align-items: flex-end; margin-bottom: 10px; max-width: 70%; animation: fadeInUp 0.4s ease-out; }
-        .message-wrapper.grouped { margin-bottom: 2px; }
-        .avatar { width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0; }
-        .message-wrapper.sent { align-self: flex-end; flex-direction: row-reverse; }
-        .message-wrapper.sent .avatar { margin-left: 12px; }
-        .message-wrapper.received { align-self: flex-start; }
-        .message-wrapper.received .avatar { margin-right: 12px; }
-        .message-wrapper.hide-avatar .avatar { visibility: hidden; }
-        .message-bubble { max-width: 100%; padding: 10px 15px; border-radius: 18px; word-wrap: break-word; line-height: 1.4; }
-        .sent .message-bubble { background-color: var(--sent-bg); color: var(--text-light); }
-        .received .message-bubble { background-color: var(--received-bg); color: var(--text-dark); }
-        
-        #sticker-panel { position: absolute; bottom: 70px; left: 10px; background: #fff; border: 1px solid #ddd; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); padding: 10px; display: none; grid-template-columns: repeat(4, 1fr); gap: 10px; max-width: 300px; z-index: 10; }
-        #sticker-panel.show { display: grid; }
-        #sticker-panel img { width: 60px; height: 60px; cursor: pointer; transition: transform 0.2s; }
-        #sticker-panel img:hover { transform: scale(1.1); }
-        .message-bubble.sticker-message { background-color: transparent; padding: 0; }
-        .sticker-message img { max-width: 120px; height: auto; }
+
         /* --- PHẦN NỀN HAI BÊN --- */
         .background-image {
             position: fixed;
@@ -89,31 +49,87 @@
             /* THAY URL ẢNH CỦA BẠN VÀO ĐÂY */
             background-image: url('https://i.redd.it/wl9x9wxt6s7e1.png');
         }
-        /* --- CSS CHO RESPONSIVE TRÊN ĐIỆN THOẠI --- */
-        @media (max-width: 768px) {
-            body {
-                align-items: flex-start;
-            }
-            #chat-container {
-                width: 100%;
-                max-width: 100%;
-                height: 100vh;
-                border-radius: 0;
-                border: none;
-                box-shadow: none;
-            }
-            .message-wrapper {
-                max-width: 85%;
-            }
-            #login-container {
-                width: 90%;
-                box-shadow: none;
-                border: 1px solid #ddd;
-            }
+        
+        /* --- GIAO DIỆN LOGIN VÀ CHAT --- */
+        #login-container {
+            width: 100%;
+            max-width: 400px;
+            padding: 20px;
+            background-color: var(--chat-bg);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            text-align: center;
+            z-index: 1;
         }
+        #chat-container {
+            width: 100%;
+            max-width: 650px;
+            height: 85vh;
+            display: none; /* Ẩn mặc định */
+            flex-direction: column;
+            background-color: var(--chat-bg);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid #ddd;
+            z-index: 1;
+        }
+
+        /* --- LOGIC HIỂN THỊ MỚI BẰNG CSS --- */
+        /* Khi chưa đăng nhập (mặc định) */
+        body:not(.chat-active) #chat-container,
+        body:not(.chat-active) .background-image {
+            display: none;
+        }
+
+        /* Khi đã đăng nhập (body có class 'chat-active') */
+        body.chat-active #login-container {
+            display: none;
+        }
+        body.chat-active #chat-container,
+        body.chat-active .background-image {
+            display: flex; /* Hoặc 'block' cho ảnh nền */
+        }
+        body.chat-active .background-image { display: block; }
+        
+        /* ... (Toàn bộ CSS còn lại giữ nguyên) ... */
+        #login-container h1 { color: var(--sent-bg); font-weight: 600; }
+        #login-form input { width: 100%; padding: 12px 20px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 25px; }
+        #login-form button { width: 100%; padding: 12px; background-color: var(--sent-bg); color: white; border: none; border-radius: 25px; cursor: pointer; font-size: 1em; font-weight: 500; }
+        #chat-header { background-color: var(--chat-bg); color: var(--text-dark); padding: 10px 20px; display: flex; justify-content: center; align-items: center; position: relative; border-bottom: 1px solid #e9e9e9; font-weight: 600; }
+        #clear-chat-button { position: absolute; right: 20px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #aaa; cursor: pointer; font-size: 0.9em; font-weight: 500; }
+        #online-status { position: absolute; left: 20px; top: 50%; transform: translateY(-50%); font-size: 0.9em; font-weight: 500; display: flex; align-items: center; }
+        .online-dot, .offline-dot { height: 10px; width: 10px; border-radius: 50%; display: inline-block; margin-right: 8px; }
+        .online-dot { background-color: #4caf50; }
+        .offline-dot { background-color: #ccc; }
+        #chat-box { flex-grow: 1; padding: 10px 20px; overflow-y: auto; display: flex; flex-direction: column; }
+        #input-container { display: flex; align-items: center; padding: 12px; border-top: 1px solid #e9e9e9; background-color: var(--chat-bg); position: relative; }
+        #message-input { flex-grow: 1; padding: 10px 20px; border: none; background-color: #f0f2f5; border-radius: 20px; margin: 0 8px; outline: none; font-size: 1em; }
+        .icon-button { flex-shrink: 0; width: 40px; height: 40px; background-color: transparent; color: var(--sent-bg); border: none; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .message-wrapper { display: flex; align-items: flex-end; margin-bottom: 10px; max-width: 70%; animation: fadeInUp 0.4s ease-out; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .message-wrapper.grouped { margin-bottom: 2px; }
+        .avatar { width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0; }
+        .message-wrapper.sent { align-self: flex-end; flex-direction: row-reverse; }
+        .message-wrapper.sent .avatar { margin-left: 12px; }
+        .message-wrapper.received { align-self: flex-start; }
+        .message-wrapper.received .avatar { margin-right: 12px; }
+        .message-wrapper.hide-avatar .avatar { visibility: hidden; }
+        .message-bubble { max-width: 100%; padding: 10px 15px; border-radius: 18px; word-wrap: break-word; line-height: 1.4; }
+        .sent .message-bubble { background-color: var(--sent-bg); color: var(--text-light); }
+        .received .message-bubble { background-color: var(--received-bg); color: var(--text-dark); }
+        #sticker-panel { position: absolute; bottom: 70px; left: 10px; background: #fff; border: 1px solid #ddd; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); padding: 10px; display: none; grid-template-columns: repeat(4, 1fr); gap: 10px; max-width: 300px; z-index: 10; }
+        #sticker-panel.show { display: grid; }
+        #sticker-panel img { width: 60px; height: 60px; cursor: pointer; transition: transform 0.2s; }
+        .message-bubble.sticker-message { background-color: transparent; padding: 0; }
+        .sticker-message img { max-width: 120px; height: auto; }
+        @media (max-width: 768px) { .background-image { display: none !important; } /* Dùng !important để chắc chắn ẩn */ body { align-items: flex-start; } #chat-container, #login-container { width: 100%; max-width: 100%; height: 100vh; border-radius: 0; border: none; box-shadow: none; } .message-wrapper { max-width: 85%; } }
     </style>
 </head>
 <body>
+    <div id="background-left" class="background-image"></div>
+    <div id="background-right" class="background-image"></div>
+    
     <div id="login-container">
         <h1>Đăng nhập Chat</h1>
         <form id="login-form">
@@ -125,7 +141,7 @@
 
     <div id="chat-container">
         <div id="chat-header">
-            <span>Chat</span>
+            <span>Cuộc trò chuyện</span>
             <div id="online-status">...</div>
             <button id="clear-chat-button">Xóa</button>
         </div>
@@ -167,8 +183,6 @@
             const dbRealtime = firebase.database();
             
             // --- LẤY CÁC PHẦN TỬ GIAO DIỆN ---
-            const loginContainer = document.getElementById('login-container');
-            const chatContainer = document.getElementById('chat-container');
             const loginForm = document.getElementById('login-form');
             const emailInput = document.getElementById('email-input');
             const passwordInput = document.getElementById('password-input');
@@ -189,79 +203,37 @@
                 "AQG9TJfjkZacKeBT8NdwlGUio2L2": "https://i.pinimg.com/736x/63/bc/bb/63bcbb4ee332aaa9b7271d4ff12cb0b5.jpg",
                 "sbx22l48QxSXrwd996hcWUashMw1": "https://i.pinimg.com/736x/0b/c0/2c/0bc02ca7218ee73db799d09518f07363.jpg"
             };
-            const stickerUrls = [
-                'https://i.pinimg.com/736x/8e/79/2a/8e792a70d1656903b1f1f1b5e13fa928.jpg',
-                'https://i.pinimg.com/736x/8e/5c/ac/8e5cacd838fde5d3d51267f0562c4476.jpg',
-                'https://i.pinimg.com/736x/9e/b3/d6/9eb3d697eaf99be76f027294596029b1.jpg',
-                'https://i.pinimg.com/736x/f2/8e/56/f28e564665f50f571dbba78f8452b012.jpg',
-                'https://i.pinimg.com/736x/02/cb/ac/02cbac98698597a4a426c8fa603975c0.jpg',
-                'https://i.pinimg.com/736x/77/3c/16/773c16dc9801ecd01fb65162c0457db1.jpg',
-                'https://i.pinimg.com/736x/a9/61/b8/a961b87fd2977a96185282b32e089615.jpg',
-                'https://i.pinimg.com/736x/7b/89/71/7b897138305610275c9f2def8b8e7490.jpg',
-            ];
+            const stickerUrls = [ 'https://media.tenor.com/1G2b_i2bTj4AAAAi/peach-and-goma-peach-goma.gif', 'https://media.tenor.com/fJp8b7i_57YAAAAi/peach-and-goma-love.gif', 'https://media.tenor.com/GvA-pZ3ML2IAAAAi/peach-and-goma.gif', 'https://media.tenor.com/3i1r2p_S4SUAAAAi/peach-goma-phone-peach-and-goma.gif', 'https://media.tenor.com/c8f2w1b8V30AAAAi/peach-and-goma-cry.gif', 'https://media.tenor.com/D8xYd2q_bJcAAAAi/peach-and-goma-peachgoma.gif', 'https://media.tenor.com/WPlPZ7b2M34AAAAi/peach-goma.gif', 'https://media.tenor.com/0PggH8y2mC4AAAAi/peach-goma.gif', ];
 
-            // --- LOGIC XỬ LÝ ĐĂNG NHẬP ---
+            // --- LOGIC XỬ LÝ ĐĂNG NHẬP (ĐÃ ĐƯỢC ĐƠN GIẢN HÓA) ---
             loginForm.addEventListener('submit', (e) => { e.preventDefault(); auth.signInWithEmailAndPassword(emailInput.value, passwordInput.value).catch((error) => alert(error.message)); });
+            
             auth.onAuthStateChanged((user) => {
                 if (user) {
                     currentUser = user;
-                    loginContainer.style.display = 'none';
-                    chatContainer.style.display = 'flex';
                     partnerId = (currentUser.uid === user1Id) ? user2Id : user1Id;
+                    document.body.classList.add('chat-active');
                     loadMessages();
                     setupOnlineStatus();
                 } else {
                     currentUser = null;
-                    loginContainer.style.display = 'block';
-                    chatContainer.style.display = 'none';
+                    document.body.classList.remove('chat-active');
                 }
             });
 
             // --- CÁC HÀM CHỨC NĂNG ---
             function sendSticker(url) { if (!currentUser) return; dbFirestore.collection("messages").add({ type: 'sticker', stickerUrl: url, senderId: currentUser.uid, timestamp: firebase.firestore.FieldValue.serverTimestamp() }); stickerPanel.classList.remove('show'); }
             function sendMessage() { if (!currentUser) return; const messageText = messageInput.value.trim(); if (messageText !== "") { dbFirestore.collection("messages").add({ type: 'text', text: messageText, senderId: currentUser.uid, timestamp: firebase.firestore.FieldValue.serverTimestamp() }); messageInput.value = ""; } }
-            function loadMessages() {
-                dbFirestore.collection("messages").orderBy("timestamp").onSnapshot((snapshot) => {
-                    chatBox.innerHTML = '';
-                    let messages = [];
-                    snapshot.forEach(doc => messages.push({ id: doc.id, ...doc.data() }));
-                    messages.forEach((msg, index) => {
-                        const prevSender = (index > 0) ? messages[index - 1].senderId : null;
-                        const nextSender = (index < messages.length - 1) ? messages[index + 1].senderId : null;
-                        const wrapper = document.createElement('div');
-                        wrapper.classList.add('message-wrapper');
-                        const avatar = document.createElement('img');
-                        avatar.classList.add('avatar');
-                        avatar.src = avatarUrls[msg.senderId] || 'https://i.pravatar.cc/150';
-                        const messageBubble = document.createElement('div');
-                        messageBubble.classList.add('message-bubble');
-                        if (msg.type === 'sticker' && msg.stickerUrl) {
-                            messageBubble.classList.add('sticker-message');
-                            const stickerImg = document.createElement('img');
-                            stickerImg.src = msg.stickerUrl;
-                            messageBubble.appendChild(stickerImg);
-                        } else {
-                            messageBubble.textContent = msg.text;
-                        }
-                        wrapper.appendChild(avatar);
-                        wrapper.appendChild(messageBubble);
-                        if (msg.senderId === currentUser.uid) { wrapper.classList.add('sent'); } else { wrapper.classList.add('received'); }
-                        if (msg.senderId === nextSender) { wrapper.classList.add('hide-avatar'); }
-                        if (msg.senderId === prevSender) { wrapper.classList.add('grouped'); }
-                        chatBox.appendChild(wrapper);
-                    });
-                    chatBox.scrollTop = chatBox.scrollHeight;
-                });
-            }
+            function loadMessages() { dbFirestore.collection("messages").orderBy("timestamp").onSnapshot((snapshot) => { chatBox.innerHTML = ''; let messages = []; snapshot.forEach(doc => messages.push({ id: doc.id, ...doc.data() })); messages.forEach((msg, index) => { const prevSender = (index > 0) ? messages[index - 1].senderId : null; const nextSender = (index < messages.length - 1) ? messages[index + 1].senderId : null; const wrapper = document.createElement('div'); wrapper.classList.add('message-wrapper'); const avatar = document.createElement('img'); avatar.classList.add('avatar'); avatar.src = avatarUrls[msg.senderId] || 'https://i.pravatar.cc/150'; const messageBubble = document.createElement('div'); messageBubble.classList.add('message-bubble'); if (msg.type === 'sticker' && msg.stickerUrl) { messageBubble.classList.add('sticker-message'); const stickerImg = document.createElement('img'); stickerImg.src = msg.stickerUrl; messageBubble.appendChild(stickerImg); } else { messageBubble.textContent = msg.text; } wrapper.appendChild(avatar); wrapper.appendChild(messageBubble); if (msg.senderId === currentUser.uid) { wrapper.classList.add('sent'); } else { wrapper.classList.add('received'); } if (msg.senderId === nextSender) { wrapper.classList.add('hide-avatar'); } if (msg.senderId === prevSender) { wrapper.classList.add('grouped'); } chatBox.appendChild(wrapper); }); chatBox.scrollTop = chatBox.scrollHeight; }); }
             function setupOnlineStatus() { const userStatusRef = dbRealtime.ref('status/' + currentUser.uid); const partnerStatusRef = dbRealtime.ref('status/' + partnerId); userStatusRef.set({ online: true }); userStatusRef.onDisconnect().set({ online: false }); partnerStatusRef.on('value', (snapshot) => { const partnerStatus = snapshot.val(); if (partnerStatus && partnerStatus.online) { onlineStatusDiv.innerHTML = '<span class="online-dot"></span> Đang hoạt động'; } else { onlineStatusDiv.innerHTML = '<span class="offline-dot"></span> Ngoại tuyến'; } }); }
 
-            // --- GẮN SỰ KIỆN VÀ KHỞI TẠO ---
+            // --- GẮN SỰ KIỆN CHO CÁC NÚT ---
             sendButton.addEventListener('click', sendMessage);
             messageInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') { e.preventDefault(); sendMessage(); } });
             clearChatButton.addEventListener('click', () => { if (confirm("Bạn có chắc chắn muốn xóa toàn bộ tin nhắn không?")) { dbFirestore.collection("messages").get().then((q) => q.forEach((doc) => doc.ref.delete())); } });
             stickerUrls.forEach(url => { const stickerImg = document.createElement('img'); stickerImg.src = url; stickerImg.addEventListener('click', () => sendSticker(url)); stickerPanel.appendChild(stickerImg); });
             stickerButton.addEventListener('click', (event) => { event.stopPropagation(); stickerPanel.classList.toggle('show'); });
-            document.addEventListener('click', (event) => { if (!stickerPanel.contains(event.target) && event.target !== stickerButton) { stickerPanel.classList.remove('show'); } });
+            document.addEventListener('click', (event) => { if (stickerPanel.classList.contains('show') && !stickerPanel.contains(event.target) && event.target !== stickerButton) { stickerPanel.classList.remove('show'); } });
         });
     </script>
 </body>
